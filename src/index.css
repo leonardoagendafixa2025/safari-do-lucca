@@ -1,0 +1,273 @@
+/* Safari do Lucca — Design System Tokens & Base Styles */
+
+:root {
+  /* Colors */
+  --color-cream-bg: #FAF7F0;
+  --color-cream-card: #FFFDF9;
+  --color-cream-subtle: #F3ECE1;
+  --color-sand-100: #EBE3D5;
+  --color-sand-200: #DFD5C3;
+  --color-sand-300: #CEBEA5;
+  
+  --color-sage-100: #E6EFE8;
+  --color-sage-300: #ABC4B0;
+  --color-sage-500: #76977D;
+  --color-sage-600: #587C60;
+  --color-sage-800: #3D5A44;
+  
+  --color-olive-700: #424F38;
+  --color-olive-900: #293422;
+  
+  --color-terracotta-100: #FAECE7;
+  --color-terracotta-400: #E08C70;
+  --color-terracotta-500: #C97255;
+  --color-terracotta-700: #9B4F37;
+  
+  --color-brown-600: #735946;
+  --color-brown-800: #4A382A;
+  --color-brown-900: #33251B;
+  
+  --color-gold-400: #E5BE5E;
+  --color-gold-500: #CA9E3B;
+  --color-gold-glow: rgba(202, 158, 59, 0.25);
+
+  --color-text-main: #36291E;
+  --color-text-muted: #6B5D50;
+  --color-text-light: #9C8F82;
+  --color-border: #E8DEC9;
+  --color-border-focus: #587C60;
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  /* Elevations */
+  --shadow-sm: 0 2px 8px rgba(62, 47, 35, 0.05);
+  --shadow-md: 0 8px 24px -4px rgba(62, 47, 35, 0.08);
+  --shadow-lg: 0 16px 36px -6px rgba(62, 47, 35, 0.12);
+  --shadow-gold: 0 8px 25px rgba(202, 158, 59, 0.28);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream-bg);
+  color: var(--color-text-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Background Safari subtle warmth */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle at 10% 20%, rgba(187, 209, 191, 0.14) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(224, 140, 112, 0.1) 0%, transparent 45%),
+                    radial-gradient(circle at 50% 50%, rgba(245, 237, 222, 0.3) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-brown-900);
+  line-height: 1.25;
+}
+
+h1 {
+  letter-spacing: -0.02em;
+}
+
+p {
+  color: var(--color-text-muted);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, input, textarea, select {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  touch-action: manipulation;
+}
+
+/* Focus styles for accessibility */
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid var(--color-sage-500);
+  outline-offset: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cream-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-sand-300);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-cream-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sage-500);
+}
+
+/* Utility classes */
+.container {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.safari-card {
+  background: var(--color-cream-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+}
+
+.safari-card::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  border: 1px dashed rgba(206, 190, 165, 0.45);
+  border-radius: calc(var(--radius-xl) - 4px);
+  pointer-events: none;
+}
+
+/* Golden badge details */
+.gold-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1.1rem;
+  background: linear-gradient(135deg, #FFF7E6 0%, #F5E5C4 100%);
+  border: 1px solid var(--color-gold-400);
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-brown-900);
+  box-shadow: 0 2px 10px var(--color-gold-glow);
+}
+
+/* Button styles */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  background: linear-gradient(135deg, var(--color-sage-600) 0%, var(--color-olive-700) 100%);
+  color: #FFFFFF;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  padding: 0.95rem 2rem;
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 20px rgba(88, 124, 96, 0.35);
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(88, 124, 96, 0.45);
+  background: linear-gradient(135deg, var(--color-sage-500) 0%, var(--color-sage-600) 100%);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-cream-card);
+  color: var(--color-brown-900);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-sand-300);
+  transition: all var(--transition-fast);
+}
+
+.btn-secondary:hover {
+  background: var(--color-sand-100);
+  border-color: var(--color-sage-500);
+  color: var(--color-sage-800);
+  transform: translateY(-1px);
+}
+
+.btn-terracotta {
+  background: linear-gradient(135deg, var(--color-terracotta-400) 0%, var(--color-terracotta-500) 100%);
+  color: #FFFFFF;
+  box-shadow: 0 8px 20px rgba(201, 114, 85, 0.32);
+}
+
+.btn-terracotta:hover {
+  background: linear-gradient(135deg, #E6967C 0%, var(--color-terracotta-500) 100%);
+  box-shadow: 0 12px 24px rgba(201, 114, 85, 0.42);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
