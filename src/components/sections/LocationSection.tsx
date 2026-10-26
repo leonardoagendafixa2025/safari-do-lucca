@@ -40,13 +40,29 @@ export const LocationSection: React.FC<LocationSectionProps> = ({ settings }) =>
           <FootprintsTrail />
         </div>
 
+        {/* Location Card */}
         <motion.div
+          className="safari-card"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          style={{ textAlign: 'center', marginBottom: '2.5rem' }}
+          style={{
+            maxWidth: '680px',
+            margin: '0 auto',
+            padding: '2.75rem 2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            background: 'rgba(255, 253, 249, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(229, 190, 94, 0.45)',
+            boxShadow: '0 16px 48px -8px rgba(45, 34, 23, 0.16)',
+          }}
         >
+          {/* Header */}
           <div
             style={{
               display: 'inline-flex',
@@ -67,24 +83,10 @@ export const LocationSection: React.FC<LocationSectionProps> = ({ settings }) =>
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
             Como Chegar
           </h2>
-          <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)' }}>
+          <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
             Nossa base de expedição espera por você!
           </p>
-        </motion.div>
 
-        {/* Location Card */}
-        <div
-          className="safari-card"
-          style={{
-            maxWidth: '680px',
-            margin: '0 auto',
-            padding: '2.5rem 1.75rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
           {/* Baby Elephant */}
           <div style={{ marginBottom: '1.25rem' }}>
             <BabyElephant size={140} />
@@ -176,7 +178,7 @@ export const LocationSection: React.FC<LocationSectionProps> = ({ settings }) =>
               </AnimatePresence>
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )

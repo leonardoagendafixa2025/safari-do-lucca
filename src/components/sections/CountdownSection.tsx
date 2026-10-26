@@ -86,11 +86,22 @@ export const CountdownSection: React.FC<CountdownSectionProps> = ({ settings }) 
         </div>
 
         <motion.div
+          className="safari-card"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          style={{ textAlign: 'center', marginBottom: '2.5rem' }}
+          style={{
+            maxWidth: '680px',
+            margin: '0 auto',
+            padding: '2.75rem 2rem',
+            textAlign: 'center',
+            background: 'rgba(255, 253, 249, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(229, 190, 94, 0.45)',
+            boxShadow: '0 16px 48px -8px rgba(45, 34, 23, 0.16)',
+          }}
         >
           {/* Header */}
           <div
@@ -113,110 +124,113 @@ export const CountdownSection: React.FC<CountdownSectionProps> = ({ settings }) 
           <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
             Contagem Regressiva
           </h2>
-          <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)' }}>
+          <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
             Prepare seu espírito aventureiro para o grande dia!
           </p>
+
+          {/* Monkey swinging beside timer */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+            <BabyMonkey size={120} />
+          </div>
+
+          {/* Timer Display or Event Day Message */}
+          {timeLeft.isPast ? (
+            <div
+              style={{
+                padding: '1.5rem',
+                textAlign: 'center',
+                maxWidth: '520px',
+                margin: '0 auto',
+                background: 'linear-gradient(135deg, #FFFDF9 0%, #FAF2E3 100%)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--color-border)',
+              }}
+            >
+              <Sparkles size={32} color="var(--color-gold-500)" style={{ margin: '0 auto 0.75rem auto' }} />
+              <h3 style={{ fontSize: '1.4rem', color: 'var(--color-brown-900)', marginBottom: '0.5rem' }}>
+                A Grande Aventura Já Foi Celebrada!
+              </h3>
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
+                Agradecemos a todos que fizeram parte desse dia inesquecível na vida do {settings.child_name}!
+              </p>
+            </div>
+          ) : timeLeft.isToday ? (
+            <div
+              style={{
+                padding: '1.5rem',
+                textAlign: 'center',
+                maxWidth: '520px',
+                margin: '0 auto',
+                background: 'linear-gradient(135deg, #E6EFE8 0%, #FAF8F2 100%)',
+                borderRadius: 'var(--radius-lg)',
+                border: '2px solid var(--color-sage-500)',
+              }}
+            >
+              <Sparkles size={36} color="var(--color-gold-500)" style={{ margin: '0 auto 0.75rem auto' }} />
+              <h3 style={{ fontSize: '1.5rem', color: 'var(--color-sage-800)', marginBottom: '0.5rem' }}>
+                É HOJE! O Grande Dia Chegou!
+              </h3>
+              <p style={{ color: 'var(--color-brown-900)', fontSize: '1rem', fontWeight: 600 }}>
+                O Safari do {settings.child_name} está pronto para receber você com muito carinho!
+              </p>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                gap: '0.75rem',
+                maxWidth: '520px',
+                margin: '0 auto',
+              }}
+            >
+              {timeUnits.map((item, idx) => (
+                <motion.div
+                  key={item.label}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1, duration: 0.5 }}
+                  style={{
+                    padding: '1.25rem 0.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'var(--color-cream-card)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: 'clamp(1.75rem, 5vw, 2.6rem)',
+                      fontWeight: 800,
+                      color: 'var(--color-brown-900)',
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {String(item.value).padStart(2, '0')}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      color: 'var(--color-sage-800)',
+                      marginTop: '0.35rem',
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </motion.div>
-
-        {/* Monkey swinging beside timer */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-          <BabyMonkey size={130} />
-        </div>
-
-        {/* Timer Display or Event Day Message */}
-        {timeLeft.isPast ? (
-          <div
-            className="safari-card"
-            style={{
-              padding: '2rem',
-              textAlign: 'center',
-              maxWidth: '520px',
-              margin: '0 auto',
-              background: 'linear-gradient(135deg, #FFFDF9 0%, #FAF2E3 100%)',
-            }}
-          >
-            <Sparkles size={32} color="var(--color-gold-500)" style={{ margin: '0 auto 0.75rem auto' }} />
-            <h3 style={{ fontSize: '1.4rem', color: 'var(--color-brown-900)', marginBottom: '0.5rem' }}>
-              A Grande Aventura Já Foi Celebrada!
-            </h3>
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
-              Agradecemos a todos que fizeram parte desse dia inesquecível na vida do {settings.child_name}!
-            </p>
-          </div>
-        ) : timeLeft.isToday ? (
-          <div
-            className="safari-card"
-            style={{
-              padding: '2rem',
-              textAlign: 'center',
-              maxWidth: '520px',
-              margin: '0 auto',
-              background: 'linear-gradient(135deg, #E6EFE8 0%, #FAF8F2 100%)',
-              border: '2px solid var(--color-sage-500)',
-            }}
-          >
-            <Sparkles size={36} color="var(--color-gold-500)" style={{ margin: '0 auto 0.75rem auto' }} />
-            <h3 style={{ fontSize: '1.5rem', color: 'var(--color-sage-800)', marginBottom: '0.5rem' }}>
-              É HOJE! O Grande Dia Chegou!
-            </h3>
-            <p style={{ color: 'var(--color-brown-900)', fontSize: '1rem', fontWeight: 600 }}>
-              O Safari do {settings.child_name} está pronto para receber você com muito carinho!
-            </p>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-              gap: '0.75rem',
-              maxWidth: '580px',
-              margin: '0 auto',
-            }}
-          >
-            {timeUnits.map((item, idx) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1, duration: 0.5 }}
-                className="safari-card"
-                style={{
-                  padding: '1.25rem 0.5rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: 'var(--color-cream-card)',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-heading)',
-                    fontSize: 'clamp(1.75rem, 5vw, 2.6rem)',
-                    fontWeight: 800,
-                    color: 'var(--color-brown-900)',
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {String(item.value).padStart(2, '0')}
-                </span>
-                <span
-                  style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    color: 'var(--color-sage-800)',
-                    marginTop: '0.35rem',
-                  }}
-                >
-                  {item.label}
-                </span>
-              </motion.div>
-            ))}
-          </div>
-        )}
       </div>
     </section>
   )

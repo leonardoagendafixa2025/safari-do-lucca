@@ -65,13 +65,29 @@ export const EventDetailsSection: React.FC<EventDetailsSectionProps> = ({ settin
           <FootprintsTrail />
         </div>
 
+        {/* Card with details and Zebra illustration */}
         <motion.div
+          className="safari-card"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          style={{ textAlign: 'center', marginBottom: '2.5rem' }}
+          style={{
+            maxWidth: '680px',
+            margin: '0 auto',
+            padding: '2.75rem 2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            background: 'rgba(255, 253, 249, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(229, 190, 94, 0.45)',
+            boxShadow: '0 16px 48px -8px rgba(45, 34, 23, 0.16)',
+          }}
         >
+          {/* Header */}
           <div
             style={{
               display: 'inline-flex',
@@ -89,24 +105,10 @@ export const EventDetailsSection: React.FC<EventDetailsSectionProps> = ({ settin
             <span>Guarde Esta Data</span>
           </div>
 
-          <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
+          <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)', marginBottom: '1.5rem' }}>
             Data & Horário
           </h2>
-        </motion.div>
 
-        {/* Card with details and Zebra illustration */}
-        <div
-          className="safari-card"
-          style={{
-            maxWidth: '680px',
-            margin: '0 auto',
-            padding: '2.5rem 1.75rem',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
           <div style={{ marginBottom: '1.25rem' }}>
             <BabyZebra size={140} />
           </div>
@@ -174,7 +176,7 @@ export const EventDetailsSection: React.FC<EventDetailsSectionProps> = ({ settin
             <CalendarPlus size={18} color="var(--color-sage-600)" />
             <span>Salvar no Google Agenda</span>
           </a>
-        </div>
+        </motion.div>
       </div>
     </section>
   )

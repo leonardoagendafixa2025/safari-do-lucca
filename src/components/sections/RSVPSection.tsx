@@ -119,64 +119,67 @@ export const RSVPSection: React.FC<RSVPSectionProps> = ({ settings }) => {
           <FootprintsTrail />
         </div>
 
+        {/* RSVP Card */}
         <motion.div
+          className="safari-card"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          style={{ textAlign: 'center', marginBottom: '2.5rem' }}
-        >
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              color: 'var(--color-sage-800)',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              marginBottom: '0.75rem',
-            }}
-          >
-            <HeartHandshake size={16} />
-            <span>Confirmação de Presença</span>
-          </div>
-
-          <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
-            Você Estará Conosco?
-          </h2>
-          <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)' }}>
-            Sua presença tornará nossa aventura ainda mais especial!
-          </p>
-
-          {settings.rsvp_deadline && (
-            <p
-              style={{
-                fontSize: '0.85rem',
-                color: 'var(--color-terracotta-500)',
-                fontWeight: 600,
-                marginTop: '0.35rem',
-              }}
-            >
-              Por favor, confirme até{' '}
-              {new Date(settings.rsvp_deadline + 'T12:00:00').toLocaleDateString('pt-BR', {
-                day: 'numeric',
-                month: 'long',
-              })}
-            </p>
-          )}
-        </motion.div>
-
-        {/* RSVP Card */}
-        <div
-          className="safari-card"
           style={{
-            maxWidth: '620px',
+            maxWidth: '640px',
             margin: '0 auto',
-            padding: '2.5rem 1.75rem',
+            padding: '2.75rem 2rem',
+            background: 'rgba(255, 253, 249, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(229, 190, 94, 0.45)',
+            boxShadow: '0 16px 48px -8px rgba(45, 34, 23, 0.16)',
           }}
         >
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                color: 'var(--color-sage-800)',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                marginBottom: '0.75rem',
+              }}
+            >
+              <HeartHandshake size={16} />
+              <span>Confirmação de Presença</span>
+            </div>
+
+            <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
+              Você Estará Conosco?
+            </h2>
+            <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)' }}>
+              Sua presença tornará nossa aventura ainda mais especial!
+            </p>
+
+            {settings.rsvp_deadline && (
+              <p
+                style={{
+                  fontSize: '0.85rem',
+                  color: 'var(--color-terracotta-500)',
+                  fontWeight: 600,
+                  marginTop: '0.35rem',
+                }}
+              >
+                Por favor, confirme até{' '}
+                {new Date(settings.rsvp_deadline + 'T12:00:00').toLocaleDateString('pt-BR', {
+                  day: 'numeric',
+                  month: 'long',
+                })}
+              </p>
+            )}
+          </div>
           {/* Deadline expired notice */}
           {isPastDeadline && !submittedRSVP ? (
             <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
@@ -523,7 +526,7 @@ export const RSVPSection: React.FC<RSVPSectionProps> = ({ settings }) => {
               </button>
             </form>
           )}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

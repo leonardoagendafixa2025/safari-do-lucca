@@ -155,47 +155,50 @@ export const GuestbookSection: React.FC<GuestbookSectionProps> = ({ settings }) 
           <FootprintsTrail />
         </div>
 
+        {/* Message Form Card */}
         <motion.div
+          className="safari-card"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          style={{ textAlign: 'center', marginBottom: '2.5rem' }}
-        >
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              color: 'var(--color-terracotta-500)',
-              fontSize: '0.85rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              marginBottom: '0.75rem',
-            }}
-          >
-            <MessageSquareHeart size={16} />
-            <span>Livro de Memórias</span>
-          </div>
-
-          <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
-            Mural de Carinho para o {settings.child_name || 'Lucca'}
-          </h2>
-          <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)', maxWidth: '560px', margin: '0.5rem auto 0 auto' }}>
-            Deixe uma mensagem especial, um conselho de aventura ou um voto de bênção para guardar no coração!
-          </p>
-        </motion.div>
-
-        {/* Message Form Card */}
-        <div
-          className="safari-card"
           style={{
             maxWidth: '680px',
             margin: '0 auto 3.5rem auto',
-            padding: '2.25rem 1.75rem',
+            padding: '2.5rem 2rem',
+            background: 'rgba(255, 253, 249, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(229, 190, 94, 0.45)',
+            boxShadow: '0 16px 48px -8px rgba(45, 34, 23, 0.16)',
           }}
         >
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                color: 'var(--color-terracotta-500)',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                marginBottom: '0.75rem',
+              }}
+            >
+              <MessageSquareHeart size={16} />
+              <span>Livro de Memórias</span>
+            </div>
+
+            <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
+              Mural de Carinho para o {settings.child_name || 'Lucca'}
+            </h2>
+            <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)', maxWidth: '560px', margin: '0.5rem auto 0 auto' }}>
+              Deixe uma mensagem especial, um conselho de aventura ou um voto de bênção para guardar no coração!
+            </p>
+          </div>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {/* Honeypot for bots */}
             <input
@@ -417,7 +420,7 @@ export const GuestbookSection: React.FC<GuestbookSectionProps> = ({ settings }) 
               )}
             </button>
           </form>
-        </div>
+        </motion.div>
 
         {/* Messages Wall Display */}
         <div style={{ maxWidth: '780px', margin: '0 auto' }}>

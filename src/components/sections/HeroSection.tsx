@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { Compass, Sparkles, ChevronDown } from 'lucide-react'
 import type { EventSettings } from '../../types'
-import { LionCub, BabyGiraffe, BabyElephant, SafariBird, PalmFrond, HangingVine } from '../illustrations'
+import { SafariBird, PalmFrond, HangingVine } from '../illustrations'
 import { useAudio } from '../../context/AudioContext'
 
 interface HeroSectionProps {
@@ -72,170 +72,162 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ settings, onEnter }) =
         <SafariBird size={55} direction="left" />
       </div>
 
-      {/* Main Container */}
-      <motion.div
+      {/* Main Container with Glassmorphic Plaque */}
+      <div
         className="container"
-        initial={{ opacity: 0, y: 25 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: 'easeOut' }}
         style={{
           position: 'relative',
           zIndex: 5,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '85vh',
         }}
       >
-        {/* Safari Explorer Badge */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-          className="gold-badge"
-          style={{ marginBottom: '1.25rem' }}
-        >
-          <Compass size={16} color="var(--color-gold-500)" />
-          <span>Convite Especial • Safari Baby</span>
-        </motion.div>
-
-        {/* Subtitle Invitation Callout */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
+          className="safari-card"
+          initial={{ opacity: 0, scale: 0.94, y: 25 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           style={{
-            fontFamily: 'var(--font-heading)',
-            fontSize: '1.15rem',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--color-sage-800)',
-            fontWeight: 700,
-            marginBottom: '0.5rem',
+            position: 'relative',
+            maxWidth: '560px',
+            width: '100%',
+            padding: '2.75rem 2rem',
+            borderRadius: '32px',
+            background: 'rgba(255, 253, 249, 0.94)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '2px solid rgba(229, 190, 94, 0.65)',
+            boxShadow: '0 25px 60px -10px rgba(45, 34, 23, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.7) inset',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
           }}
         >
-          Você está convidado para uma grande aventura!
-        </motion.p>
+          {/* Safari Explorer Badge */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="gold-badge"
+            style={{ marginBottom: '1.25rem' }}
+          >
+            <Compass size={16} color="var(--color-gold-500)" />
+            <span>Convite Especial • Safari Baby</span>
+          </motion.div>
 
-        {/* Big Name "LUCCA" with majestic typography */}
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          style={{ position: 'relative', margin: '0.5rem 0 1rem 0' }}
-        >
-          <h1
+          {/* Subtitle Invitation Callout */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.7 }}
+            style={{
+              fontFamily: 'var(--font-heading)',
+              fontSize: '1.05rem',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: 'var(--color-sage-800)',
+              fontWeight: 700,
+              marginBottom: '0.5rem',
+            }}
+          >
+            Você está convidado para uma grande aventura!
+          </motion.p>
+
+          {/* Big Name "LUCCA" with majestic typography */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            style={{ position: 'relative', margin: '0.25rem 0 0.75rem 0' }}
+          >
+            <h1
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'clamp(3.5rem, 11vw, 5.5rem)',
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                lineHeight: 1.05,
+                color: 'var(--color-brown-900)',
+                textShadow: '0 2px 10px rgba(92, 69, 51, 0.08)',
+              }}
+            >
+              {settings.child_name || 'LUCCA'}
+            </h1>
+
+            {/* Underline accent with sparkles */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginTop: '0.35rem' }}>
+              <span style={{ width: '45px', height: '2px', background: 'var(--color-gold-400)', borderRadius: '2px' }} />
+              <Sparkles size={16} color="var(--color-gold-500)" />
+              <span style={{ width: '45px', height: '2px', background: 'var(--color-gold-400)', borderRadius: '2px' }} />
+            </div>
+          </motion.div>
+
+          {/* Subtitle: 1 Aninho */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.7 }}
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(3.8rem, 12vw, 6.5rem)',
-              fontWeight: 800,
-              letterSpacing: '0.04em',
-              lineHeight: 1,
-              color: 'var(--color-brown-900)',
-              textShadow: '0 4px 18px rgba(92, 69, 51, 0.12)',
+              fontSize: 'clamp(1.2rem, 3.2vw, 1.65rem)',
+              fontStyle: 'italic',
+              color: 'var(--color-terracotta-700)',
+              marginBottom: '1.75rem',
             }}
           >
-            {settings.child_name || 'LUCCA'}
-          </h1>
+            {settings.event_subtitle || 'Uma Grande Aventura • 1 Aninho'}
+          </motion.p>
 
-          {/* Underline accent with foliage leaf */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginTop: '0.25rem' }}>
-            <span style={{ width: '40px', height: '2px', background: 'var(--color-gold-400)', borderRadius: '2px' }} />
-            <Sparkles size={16} color="var(--color-gold-500)" />
-            <span style={{ width: '40px', height: '2px', background: 'var(--color-gold-400)', borderRadius: '2px' }} />
-          </div>
-        </motion.div>
-
-        {/* Subtitle: 1 Aninho */}
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.7 }}
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(1.2rem, 3.5vw, 1.8rem)',
-            fontStyle: 'italic',
-            color: 'var(--color-terracotta-700)',
-            marginBottom: '2rem',
-          }}
-        >
-          {settings.event_subtitle || 'Uma Grande Aventura • 1 Aninho'}
-        </motion.p>
-
-        {/* Animal Showcase Trio (Lion, Elephant, Giraffe) */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            gap: '1rem',
-            margin: '0.5rem 0 2.5rem 0',
-            maxWidth: '100%',
-          }}
-        >
-          {/* Giraffe Left */}
-          <div style={{ display: 'none', transform: 'translateY(-10px)' }} className="hero-animal-side">
-            <BabyGiraffe size={130} />
-          </div>
-
-          {/* Lion Center (Featured Explorer) */}
+          {/* Entrance Button "ENTRAR NO SAFARI" */}
           <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.6, type: 'spring', stiffness: 120 }}
-            style={{ position: 'relative' }}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+            style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
           >
-            <LionCub size={190} />
+            <motion.button
+              onClick={handleEnterSafari}
+              className="btn-primary"
+              style={{
+                padding: '1.15rem 2.5rem',
+                fontSize: '1.15rem',
+                letterSpacing: '0.06em',
+                boxShadow: '0 10px 25px rgba(88, 124, 96, 0.35)',
+              }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <Compass size={22} />
+              <span>Entrar no Safari</span>
+            </motion.button>
           </motion.div>
 
-          {/* Elephant Right */}
-          <div style={{ display: 'none', transform: 'translateY(-10px)' }} className="hero-animal-side">
-            <BabyElephant size={140} />
-          </div>
-        </div>
+          {/* Helper subtext */}
+          <p style={{ marginTop: '0.95rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+            Toque para abrir a aventura e iniciar a trilha sonora
+          </p>
 
-        {/* Entrance Button "ENTRAR NO SAFARI" */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.6 }}
-        >
-          <motion.button
-            onClick={handleEnterSafari}
-            className="btn-primary"
-            style={{
-              padding: '1.15rem 2.5rem',
-              fontSize: '1.15rem',
-              letterSpacing: '0.06em',
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            <Compass size={22} />
-            <span>Entrar no Safari</span>
-          </motion.button>
+          {/* Scroll indicator */}
+          {hasEntered && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, y: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              style={{ marginTop: '1.5rem', color: 'var(--color-sage-600)', cursor: 'pointer' }}
+              onClick={() => {
+                const target = document.getElementById('apresentacao')
+                if (target) target.scrollIntoView({ behavior: 'smooth' })
+              }}
+            >
+              <ChevronDown size={28} />
+            </motion.div>
+          )}
         </motion.div>
-
-        {/* Helper subtext */}
-        <p style={{ marginTop: '0.85rem', fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
-          Toque para abrir a aventura e iniciar a trilha sonora
-        </p>
-
-        {/* Scroll indicator */}
-        {hasEntered && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            style={{ marginTop: '2.5rem', color: 'var(--color-sage-600)', cursor: 'pointer' }}
-            onClick={() => {
-              const target = document.getElementById('apresentacao')
-              if (target) target.scrollIntoView({ behavior: 'smooth' })
-            }}
-          >
-            <ChevronDown size={28} />
-          </motion.div>
-        )}
-      </motion.div>
+      </div>
 
       {/* Responsive media styling for animals */}
       <style>{`
