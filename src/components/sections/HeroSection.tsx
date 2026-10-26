@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { Compass, ChevronDown } from 'lucide-react'
 import type { EventSettings } from '../../types'
@@ -9,17 +9,46 @@ import { useAudio } from '../../context/AudioContext'
 interface HeroSectionProps {
   settings: EventSettings
   onEnter: () => void
+  hasEntered?: boolean
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ settings, onEnter }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({
+  settings,
+  onEnter,
+  hasEntered: controlledHasEntered,
+}) => {
   const { startAudio } = useAudio()
-  const [hasEntered, setHasEntered] = useState(false)
+  const [internalEntered, setInternalEntered] = useState(false)
+  const [attemptedScroll, setAttemptedScroll] = useState(false)
+
+  const hasEntered = controlledHasEntered !== undefined ? controlledHasEntered : internalEntered
+
+  // Detect when user tries to scroll before clicking the mandatory button
+  useEffect(() => {
+    if (hasEntered) return
+
+    let timer: ReturnType<typeof setTimeout>
+    const handleScrollAttempt = () => {
+      setAttemptedScroll(true)
+      clearTimeout(timer)
+      timer = setTimeout(() => setAttemptedScroll(false), 2800)
+    }
+
+    window.addEventListener('wheel', handleScrollAttempt, { passive: true })
+    window.addEventListener('touchmove', handleScrollAttempt, { passive: true })
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('wheel', handleScrollAttempt)
+      window.removeEventListener('touchmove', handleScrollAttempt)
+    }
+  }, [hasEntered])
 
   const handleEnterSafari = async () => {
     // 1. Trigger celebratory confetti
     confetti({
-      particleCount: 75,
-      spread: 70,
+      particleCount: 85,
+      spread: 75,
       origin: { y: 0.6 },
       colors: ['#76977D', '#E08C70', '#E5BE5E', '#DFD5C3', '#4A382A'],
     })
@@ -27,14 +56,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ settings, onEnter }) =
     // 2. Start audio playback
     await startAudio()
 
-    setHasEntered(true)
+    setInternalEntered(true)
     onEnter()
 
-    // 3. Smooth scroll to first content section
-    const target = document.getElementById('apresentacao')
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth' })
-    }
+    // 3. Smooth scroll to first content section after unlock
+    setTimeout(() => {
+      const target = document.getElementById('apresentacao')
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' })
+      }
+    }, 150)
   }
 
   return (
@@ -204,6 +235,33 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ settings, onEnter }) =
             Uma celebração cheia de encanto, descobertas e alegria espera por você!
           </motion.p>
 
+          {/* Scroll Alert: When user attempts to scroll before starting adventure */}
+          <AnimatePresence>
+            {attemptedScroll && !hasEntered && (
+              <motion.div
+                initial={{ opacity: 0, y: -6, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  background: 'var(--color-sage-800)',
+                  color: '#FFFFFF',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  padding: '0.5rem 1.25rem',
+                  borderRadius: 'var(--radius-full)',
+                  marginBottom: '0.85rem',
+                  boxShadow: '0 6px 16px rgba(45, 34, 23, 0.25)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                }}
+              >
+                <span>👇 Toque em COMEÇAR A AVENTURA para liberar o convite</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Entrance Button: ◉ COMEÇAR A AVENTURA */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -225,6 +283,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ settings, onEnter }) =
               }}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
+              animate={
+                !hasEntered
+                  ? {
+                      scale: [1, 1.035, 1],
+                      boxShadow: [
+                        '0 10px 25px rgba(88, 124, 96, 0.35)',
+                        '0 14px 34px rgba(229, 190, 94, 0.7)',
+                        '0 10px 25px rgba(88, 124, 96, 0.35)',
+                      ],
+                    }
+                  : {}
+              }
+              transition={
+                !hasEntered
+                  ? { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
+                  : {}
+              }
             >
               <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>◉</span>
               <span>COMEÇAR A AVENTURA</span>

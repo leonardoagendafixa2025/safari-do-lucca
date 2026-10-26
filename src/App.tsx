@@ -18,10 +18,33 @@ import { AdminLogin } from './components/admin/AdminLogin'
 
 export const App: React.FC = () => {
   const [settings, setSettings] = useState<EventSettings>(DEFAULT_EVENT_SETTINGS)
+  const [hasEntered, setHasEntered] = useState(false)
   const [isAdminView, setIsAdminView] = useState(() => {
     return window.location.hash === '#admin' || window.location.pathname === '/admin'
   })
   const [isAdminAuth, setIsAdminAuth] = useState(() => checkIsAdminAuthenticated())
+
+  // Lock scroll until user clicks "COMEÇAR A AVENTURA" (mandatory music + entry experience)
+  useEffect(() => {
+    if (isAdminView) {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+      return
+    }
+
+    if (!hasEntered) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+  }, [hasEntered, isAdminView])
 
   // Listen to hash change (e.g. #admin)
   useEffect(() => {
@@ -89,17 +112,30 @@ export const App: React.FC = () => {
   // ----------------------------------------------------
   return (
     <AudioProvider initialAudioUrl={settings.audio_url}>
-      <div className="safari-experience" style={{ minHeight: '100vh', position: 'relative' }}>
+      <div
+        className="safari-experience"
+        style={{
+          minHeight: '100vh',
+          position: 'relative',
+          height: hasEntered ? 'auto' : '100vh',
+          maxHeight: hasEntered ? 'none' : '100vh',
+          overflow: hasEntered ? 'visible' : 'hidden',
+        }}
+      >
         {/* Animated Full HD 1080p Scroll-Driven Video Background */}
         <SafariScrollVideoBackground />
 
-        {/* Floating discrete music controller */}
-        <AudioPlayerController />
+        {/* Floating discrete music controller (shown after entry) */}
+        {hasEntered && <AudioPlayerController />}
 
         {/* Content sections floating above animated background */}
         <div style={{ position: 'relative', zIndex: 1 }}>
           {/* A. Abertura Cinematográfica */}
-          <HeroSection settings={settings} onEnter={() => {}} />
+          <HeroSection
+            settings={settings}
+            onEnter={() => setHasEntered(true)}
+            hasEntered={hasEntered}
+          />
 
           {/* B. Apresentação (Mensagem dos Pais) */}
           <IntroMessageSection settings={settings} />
