@@ -15,8 +15,6 @@ export const RSVPSection: React.FC<RSVPSectionProps> = ({ settings }) => {
   const [attending, setAttending] = useState<boolean | null>(true)
   const [companionsCount, setCompanionsCount] = useState<number>(0)
   const [companionNames, setCompanionNames] = useState<string[]>([])
-  const [phone, setPhone] = useState('')
-  const [notes, setNotes] = useState('')
 
   const [loading, setLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -79,8 +77,6 @@ export const RSVPSection: React.FC<RSVPSectionProps> = ({ settings }) => {
         attending: attending,
         companions_count: attending ? companionsCount : 0,
         companion_names: filteredCompanions,
-        phone: phone.trim() || undefined,
-        notes: notes.trim() || undefined,
       })
 
       if (result.success && result.rsvp) {
@@ -435,69 +431,6 @@ export const RSVPSection: React.FC<RSVPSectionProps> = ({ settings }) => {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {/* Phone / WhatsApp */}
-              <div>
-                <label
-                  htmlFor="guest_phone"
-                  style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-heading)',
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
-                    color: 'var(--color-brown-900)',
-                    marginBottom: '0.4rem',
-                  }}
-                >
-                  Telefone / WhatsApp (opcional)
-                </label>
-                <input
-                  id="guest_phone"
-                  type="tel"
-                  placeholder="(00) 00000-0000"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.85rem 1rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1.5px solid var(--color-border)',
-                    background: 'var(--color-cream-bg)',
-                  }}
-                />
-              </div>
-
-              {/* Optional Notes */}
-              <div>
-                <label
-                  htmlFor="guest_notes"
-                  style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-heading)',
-                    fontWeight: 700,
-                    fontSize: '0.95rem',
-                    color: 'var(--color-brown-900)',
-                    marginBottom: '0.4rem',
-                  }}
-                >
-                  Observações ou Restrições Alimentares (opcional)
-                </label>
-                <textarea
-                  id="guest_notes"
-                  rows={2}
-                  placeholder="Ex: Vegetariano, alérgico a amendoim, etc."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.85rem 1rem',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1.5px solid var(--color-border)',
-                    background: 'var(--color-cream-bg)',
-                    resize: 'none',
-                  }}
-                />
-              </div>
 
               {/* Submit Button */}
               <button

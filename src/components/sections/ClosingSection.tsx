@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Share2, ArrowUp, Lock } from 'lucide-react'
+import { Heart, ArrowUp, Lock } from 'lucide-react'
 import type { EventSettings } from '../../types'
 import { LionCub, BabyElephant, BabyGiraffe, BabyZebra, BabyMonkey } from '../illustrations'
 
@@ -10,17 +10,6 @@ interface ClosingSectionProps {
 }
 
 export const ClosingSection: React.FC<ClosingSectionProps> = ({ settings, onOpenAdmin }) => {
-  const handleShareWhatsApp = () => {
-    const text = `🦁 *Convite Especial: Safari do ${settings.child_name || 'Lucca'} - 1 Aninho!*\n\n` +
-      `Você está convidado para viver essa grande aventura com a gente!\n` +
-      `📅 Data: ${new Date(settings.event_date).toLocaleDateString('pt-BR')}\n` +
-      `🕒 Horário: ${settings.event_time_display}\n` +
-      `📍 Local: ${settings.venue_name}\n\n` +
-      `Acesse o convite interativo e confirme sua presença aqui:\n${window.location.origin}`
-
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
-  }
-
   const handleScrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -37,42 +26,58 @@ export const ClosingSection: React.FC<ClosingSectionProps> = ({ settings, onOpen
       }}
     >
       <div className="container" style={{ position: 'relative' }}>
-        {/* Gathering of all Baby Animals */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            flexWrap: 'wrap',
-            marginBottom: '2rem',
-          }}
-        >
-          <div style={{ transform: 'translateY(5px)' }}>
-            <BabyGiraffe size={100} />
-          </div>
-          <div style={{ transform: 'translateY(-5px)' }}>
-            <BabyElephant size={105} />
-          </div>
-          <div style={{ transform: 'scale(1.15)', zIndex: 2 }}>
-            <LionCub size={140} />
-          </div>
-          <div style={{ transform: 'translateY(-5px)' }}>
-            <BabyZebra size={105} />
-          </div>
-          <div style={{ transform: 'translateY(10px)' }}>
-            <BabyMonkey size={95} />
-          </div>
-        </div>
-
-        {/* Closing Title */}
+        {/* Main Closing Card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          className="safari-card"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          style={{ maxWidth: '620px', margin: '0 auto 2.5rem auto' }}
+          style={{
+            maxWidth: '680px',
+            margin: '0 auto 2.5rem auto',
+            padding: '3rem 2rem 2.5rem 2rem',
+            textAlign: 'center',
+            background: 'rgba(255, 253, 249, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(229, 190, 94, 0.45)',
+            boxShadow: '0 16px 48px -8px rgba(45, 34, 23, 0.16)',
+            borderRadius: 'var(--radius-xl)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
         >
+          {/* Gathering of all Baby Animals */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              flexWrap: 'wrap',
+              marginBottom: '1.75rem',
+            }}
+          >
+            <div style={{ transform: 'translateY(5px)' }}>
+              <BabyGiraffe size={85} />
+            </div>
+            <div style={{ transform: 'translateY(-3px)' }}>
+              <BabyElephant size={90} />
+            </div>
+            <div style={{ transform: 'scale(1.1)', zIndex: 2 }}>
+              <LionCub size={115} />
+            </div>
+            <div style={{ transform: 'translateY(-3px)' }}>
+              <BabyZebra size={90} />
+            </div>
+            <div style={{ transform: 'translateY(8px)' }}>
+              <BabyMonkey size={80} />
+            </div>
+          </div>
+
+          {/* Closing Title & Message */}
           <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', color: 'var(--color-brown-900)', marginBottom: '1rem' }}>
             Esperamos Você!
           </h2>
@@ -82,61 +87,62 @@ export const ClosingSection: React.FC<ClosingSectionProps> = ({ settings, onOpen
               lineHeight: 1.7,
               color: 'var(--color-brown-800)',
               fontStyle: 'italic',
+              maxWidth: '560px',
+              margin: '0 auto 2rem auto',
             }}
           >
             {settings.closing_message ||
               'Esperamos você e sua família para viver essa grande aventura com a gente! Com muito amor, Lucca e Papais.'}
           </p>
-        </motion.div>
 
-        {/* Buttons */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '1rem',
-            marginBottom: '3rem',
-          }}
-        >
-          {/* Share on WhatsApp */}
-          <button
-            onClick={handleShareWhatsApp}
-            className="btn-primary"
+          {/* Action Buttons */}
+          <div
             style={{
-              padding: '0.85rem 1.8rem',
-              fontSize: '0.95rem',
-              background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-              boxShadow: '0 8px 20px rgba(37, 211, 102, 0.28)',
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '1rem',
+              width: '100%',
             }}
           >
-            <Share2 size={18} />
-            <span>Compartilhar Convite</span>
-          </button>
+            {/* Back to top */}
+            <button
+              onClick={handleScrollToTop}
+              className="btn-primary"
+              style={{
+                padding: '0.9rem 2.2rem',
+                fontSize: '1rem',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                boxShadow: '0 8px 25px rgba(88, 124, 96, 0.35)',
+              }}
+            >
+              <ArrowUp size={18} />
+              <span>Voltar ao Início</span>
+            </button>
+          </div>
+        </motion.div>
 
-          {/* Back to top */}
-          <button
-            onClick={handleScrollToTop}
-            className="btn-secondary"
-            style={{ padding: '0.85rem 1.6rem', fontSize: '0.95rem' }}
-          >
-            <ArrowUp size={18} />
-            <span>Voltar ao Início</span>
-          </button>
-        </div>
-
-        {/* Discrete Admin Link & Footer Note */}
+        {/* Discrete Admin Link & Footer Note with frosted badge */}
         <div
           style={{
-            borderTop: '1px solid var(--color-sand-300)',
-            paddingTop: '1.5rem',
+            maxWidth: '480px',
+            margin: '0 auto',
+            padding: '1rem 1.5rem',
+            borderRadius: 'var(--radius-full)',
+            background: 'rgba(255, 253, 249, 0.9)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(229, 190, 94, 0.3)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '0.5rem',
+            gap: '0.4rem',
             fontSize: '0.8rem',
-            color: 'var(--color-text-light)',
+            color: 'var(--color-text-muted)',
+            boxShadow: '0 4px 15px rgba(45, 34, 23, 0.08)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
@@ -150,7 +156,7 @@ export const ClosingSection: React.FC<ClosingSectionProps> = ({ settings, onOpen
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.35rem',
-              color: 'var(--color-text-muted)',
+              color: 'var(--color-text-light)',
               fontSize: '0.75rem',
               marginTop: '0.25rem',
               padding: '0.3rem 0.6rem',
