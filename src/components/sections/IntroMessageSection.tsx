@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Heart, Sparkles, Volume2, VolumeX, Play } from 'lucide-react'
 import type { EventSettings } from '../../types'
-import { BabyGiraffe, FootprintsTrail, MonsteraLeaf } from '../illustrations'
+import { FootprintsTrail, MonsteraLeaf } from '../illustrations'
 
 interface IntroMessageSectionProps {
   settings: EventSettings
@@ -10,8 +10,6 @@ interface IntroMessageSectionProps {
 
 export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settings }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [videoLoaded, setVideoLoaded] = useState(false)
-  const [videoError, setVideoError] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [isPlaying, setIsPlaying] = useState(true)
 
@@ -28,11 +26,9 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
 
     const p = video.play()
     if (p !== undefined) {
-      p.catch(() => {
-        // Autoplay policy or video pending
-      })
+      p.then(() => setIsPlaying(true)).catch(() => {})
     }
-  }, [videoLoaded])
+  }, [])
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -47,8 +43,7 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
     const video = videoRef.current
     if (!video) return
     if (video.paused) {
-      video.play()
-      setIsPlaying(true)
+      video.play().then(() => setIsPlaying(true)).catch(() => {})
     } else {
       video.pause()
       setIsPlaying(false)
@@ -122,12 +117,12 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
             Nossa Maior Aventura
           </h2>
 
-          {/* Lucca's Special Animation Video (Replaces the Giraffe) */}
+          {/* Lucca's Special Animation Video (Vertical 9:16 Reel Frame) */}
           <div
             style={{
-              margin: '0.5rem 0 1.75rem 0',
+              margin: '0.5rem auto 1.75rem auto',
               width: '100%',
-              maxWidth: '480px',
+              maxWidth: '320px',
               position: 'relative',
             }}
           >
@@ -136,16 +131,19 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
                 position: 'relative',
                 borderRadius: '24px',
                 overflow: 'hidden',
-                border: '2px solid rgba(229, 190, 94, 0.65)',
-                boxShadow: '0 16px 36px -8px rgba(45, 34, 23, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.8) inset',
-                background: 'linear-gradient(135deg, rgba(255, 253, 249, 0.95) 0%, rgba(243, 236, 225, 0.85) 100%)',
-                cursor: videoLoaded ? 'pointer' : 'default',
+                border: '2.5px solid rgba(229, 190, 94, 0.75)',
+                boxShadow: '0 20px 40px -10px rgba(45, 34, 23, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.8) inset',
+                background: '#000000',
+                cursor: 'pointer',
+                aspectRatio: '9 / 16',
               }}
-              onClick={videoLoaded ? togglePlay : undefined}
+              onClick={togglePlay}
             >
               {/* Video Element */}
               <video
                 ref={videoRef}
+                src="/luca.mp4"
+                poster="/luca_poster.jpg"
                 playsInline
                 autoPlay
                 muted
@@ -153,67 +151,53 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
                 preload="auto"
                 style={{
                   width: '100%',
-                  height: 'auto',
-                  maxHeight: '400px',
-                  display: videoLoaded && !videoError ? 'block' : 'none',
+                  height: '100%',
                   objectFit: 'cover',
-                  borderRadius: '22px',
-                }}
-                onLoadedData={() => {
-                  setVideoLoaded(true)
-                  setVideoError(false)
-                }}
-                onError={() => {
-                  setVideoError(true)
+                  display: 'block',
                 }}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
-              >
-                <source src="/fundo/luca.mp4" type="video/mp4" />
-                <source src="/luca.mp4" type="video/mp4" />
-              </video>
+              />
 
               {/* Sound Toggle Button */}
-              {videoLoaded && !videoError && (
-                <div
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '12px',
+                  right: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  zIndex: 5,
+                }}
+              >
+                <button
+                  onClick={toggleMute}
+                  aria-label={isMuted ? 'Ativar som do vídeo' : 'Silenciar som do vídeo'}
                   style={{
-                    position: 'absolute',
-                    bottom: '12px',
-                    right: '12px',
-                    display: 'flex',
+                    background: 'rgba(45, 34, 23, 0.82)',
+                    backdropFilter: 'blur(8px)',
+                    color: '#FFFFFF',
+                    border: '1px solid rgba(255, 255, 255, 0.5)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '0.45rem 0.9rem',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.4rem',
-                    zIndex: 5,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+                    transition: 'all 0.2s ease',
                   }}
                 >
-                  <button
-                    onClick={toggleMute}
-                    aria-label={isMuted ? 'Ativar som do vídeo' : 'Silenciar som do vídeo'}
-                    style={{
-                      background: 'rgba(45, 34, 23, 0.82)',
-                      backdropFilter: 'blur(8px)',
-                      color: '#FFFFFF',
-                      border: '1px solid rgba(255, 255, 255, 0.4)',
-                      borderRadius: 'var(--radius-full)',
-                      padding: '0.4rem 0.85rem',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.35rem',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-                      transition: 'all 0.2s ease',
-                    }}
-                  >
-                    {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                    <span>{isMuted ? 'Ativar Som' : 'Silenciar'}</span>
-                  </button>
-                </div>
-              )}
+                  {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+                  <span>{isMuted ? 'Ativar Som' : 'Silenciar'}</span>
+                </button>
+              </div>
 
               {/* Play / Pause Overlay Icon when paused */}
-              {videoLoaded && !videoError && !isPlaying && (
+              {!isPlaying && (
                 <div
                   style={{
                     position: 'absolute',
@@ -221,54 +205,25 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: 'rgba(0, 0, 0, 0.25)',
+                    background: 'rgba(0, 0, 0, 0.3)',
                     pointerEvents: 'none',
                   }}
                 >
                   <div
                     style={{
-                      width: '56px',
-                      height: '56px',
+                      width: '60px',
+                      height: '60px',
                       borderRadius: '50%',
-                      background: 'rgba(255, 255, 255, 0.9)',
+                      background: 'rgba(255, 255, 255, 0.92)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: 'var(--color-brown-900)',
-                      boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
                     }}
                   >
-                    <Play size={24} fill="currentColor" style={{ marginLeft: '3px' }} />
+                    <Play size={26} fill="currentColor" style={{ marginLeft: '3px' }} />
                   </div>
-                </div>
-              )}
-
-              {/* Friendly Fallback / While video is being added */}
-              {(!videoLoaded || videoError) && (
-                <div
-                  style={{
-                    padding: '2rem 1.5rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <BabyGiraffe size={120} />
-                  <p
-                    style={{
-                      marginTop: '0.75rem',
-                      fontSize: '0.85rem',
-                      fontWeight: 700,
-                      color: 'var(--color-sage-800)',
-                      letterSpacing: '0.02em',
-                    }}
-                  >
-                    🎬 Vídeo especial do Lucca
-                  </p>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                    Insira o arquivo luca.mp4 na pasta fundo
-                  </span>
                 </div>
               )}
             </div>
