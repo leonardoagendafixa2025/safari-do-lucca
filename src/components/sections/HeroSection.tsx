@@ -311,6 +311,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             Toque para entrar e descobrir essa surpresa especial.
           </p>
 
+          <p
+            style={{
+              marginTop: '0.5rem',
+              fontSize: '0.78rem',
+              color: 'var(--color-sage-800)',
+              fontWeight: 600,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
+            }}
+          >
+            <span>📱 Dica: Você também pode virar o celular na horizontal para ver o cenário em tela cheia!</span>
+          </p>
+
           {/* Scroll indicator */}
           {hasEntered && (
             <motion.div

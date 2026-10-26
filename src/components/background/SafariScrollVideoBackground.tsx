@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 
 interface SafariScrollVideoBackgroundProps {
   videoSrc?: string
@@ -8,8 +8,6 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
   videoSrc = '/fundo_video.mp4',
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [isVideoReady, setIsVideoReady] = useState(false)
-  const [loadError, setLoadError] = useState(false)
 
   // Scroll & animation progress refs
   const targetProgressRef = useRef<number>(0)
@@ -28,7 +26,7 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
     targetProgressRef.current = progress
   }, [])
 
-  // Continuous animation loop using native video.seeking
+  // Continuous animation loop using native video seeking
   useEffect(() => {
     let active = true
 
@@ -39,7 +37,7 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
 
       // Lerp smoothing factor for natural fluid motion
       if (Math.abs(diff) > 0.0005) {
-        currentProgressRef.current += diff * 0.16
+        currentProgressRef.current += diff * 0.18
       } else {
         currentProgressRef.current = targetProgressRef.current
       }
@@ -52,8 +50,8 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
         )
         const timeDiff = Math.abs(video.currentTime - targetSeconds)
 
-        // Only seek if difference is greater than ~1 frame (0.03s at 24fps)
-        if (timeDiff > 0.03) {
+        // Seek if difference is greater than ~1 frame
+        if (timeDiff > 0.035) {
           try {
             if (
               'fastSeek' in video &&
@@ -64,7 +62,7 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
               video.currentTime = targetSeconds
             }
           } catch {
-            // Fallback
+            // Ignored
           }
         }
       }
@@ -87,27 +85,22 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
     const video = videoRef.current
     if (!video) return
 
+    // Explicitly enforce muted and inline playback on DOM node (essential for iOS Safari)
+    video.muted = true
+    video.defaultMuted = true
+    video.playsInline = true
+    video.setAttribute('muted', '')
+    video.setAttribute('playsinline', 'true')
+    video.setAttribute('webkit-playsinline', 'true')
+    video.setAttribute('x5-playsinline', 'true')
+    video.setAttribute('x5-video-player-type', 'h5')
+
     const handleLoadedMetadata = () => {
-      setIsVideoReady(true)
       updateScrollProgress()
     }
 
-    const handleSeeked = () => {
-      if (video.duration && !video.seeking) {
-        const targetSeconds = currentProgressRef.current * video.duration
-        if (Math.abs(video.currentTime - targetSeconds) > 0.03) {
-          try {
-            video.currentTime = Math.min(video.duration, Math.max(0, targetSeconds))
-          } catch {
-            // Ignored
-          }
-        }
-      }
-    }
-
-    const handleError = () => {
-      console.warn('Safari video failed to load:', video.error)
-      setLoadError(true)
+    const handleError = (e: Event) => {
+      console.warn('Safari video notice:', e)
     }
 
     // Touch & mobile gesture unlock for iOS Safari & Android Chrome
@@ -116,6 +109,8 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
       isMobileUnlockedRef.current = true
 
       try {
+        video.muted = true
+        video.defaultMuted = true
         const playPromise = video.play()
         if (playPromise !== undefined) {
           playPromise
@@ -125,9 +120,7 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
                 video.currentTime = currentProgressRef.current * video.duration
               }
             })
-            .catch(() => {
-              // Handled by browser
-            })
+            .catch(() => {})
         }
       } catch {
         // Fallback
@@ -136,16 +129,18 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
 
     video.addEventListener('loadedmetadata', handleLoadedMetadata)
     video.addEventListener('canplay', handleLoadedMetadata)
-    video.addEventListener('seeked', handleSeeked)
+    video.addEventListener('loadeddata', handleLoadedMetadata)
     video.addEventListener('error', handleError)
 
     window.addEventListener('scroll', updateScrollProgress, { passive: true })
     window.addEventListener('resize', updateScrollProgress, { passive: true })
-    window.addEventListener('touchstart', unlockMobileVideo, { passive: true, once: true })
-    window.addEventListener('pointerdown', unlockMobileVideo, { passive: true, once: true })
+    window.addEventListener('touchstart', unlockMobileVideo, { passive: true })
+    window.addEventListener('pointerdown', unlockMobileVideo, { passive: true })
+    window.addEventListener('click', unlockMobileVideo, { passive: true })
 
-    // Check ready state immediately if already cached
+    // Kick off initial load
     updateScrollProgress()
+    video.load()
     if (video.readyState >= 1) {
       handleLoadedMetadata()
     }
@@ -153,19 +148,16 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
     return () => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata)
       video.removeEventListener('canplay', handleLoadedMetadata)
-      video.removeEventListener('seeked', handleSeeked)
+      video.removeEventListener('loadeddata', handleLoadedMetadata)
       video.removeEventListener('error', handleError)
 
       window.removeEventListener('scroll', updateScrollProgress)
       window.removeEventListener('resize', updateScrollProgress)
       window.removeEventListener('touchstart', unlockMobileVideo)
       window.removeEventListener('pointerdown', unlockMobileVideo)
+      window.removeEventListener('click', unlockMobileVideo)
     }
   }, [updateScrollProgress])
-
-  if (loadError) {
-    return null
-  }
 
   return (
     <div
@@ -181,13 +173,14 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
         backgroundColor: 'var(--color-cream-bg, #FAF7F0)',
       }}
     >
-      {/* Full HD 1080p Video Element */}
+      {/* Full HD 1080p Video Element with Immediate Poster Fallback */}
       <video
         ref={videoRef}
         src={videoSrc}
+        poster="/fundo_poster.jpg"
         playsInline
         muted
-        autoPlay={false}
+        autoPlay
         loop={false}
         preload="auto"
         disablePictureInPicture
@@ -199,8 +192,6 @@ export const SafariScrollVideoBackground: React.FC<SafariScrollVideoBackgroundPr
           objectFit: 'cover',
           objectPosition: 'center center',
           display: 'block',
-          opacity: isVideoReady ? 1 : 0,
-          transition: 'opacity 0.6s ease-out',
         }}
       />
 

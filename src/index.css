@@ -273,3 +273,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     scroll-behavior: auto !important;
   }
 }
+
+/* Mobile Landscape & Horizontal rotation optimization */
+@media (orientation: landscape) and (max-height: 600px) {
+  .safari-card {
+    padding: 1.5rem 1.75rem !important;
+    max-width: 620px !important;
+  }
+  section {
+    padding: 2.25rem 1rem !important;
+    min-height: auto !important;
+  }
+}
