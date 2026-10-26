@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { EventSettings, RSVP, GuestMessage, RSVPStats, MessageStatus, AnimalType } from '../types'
-import { DEFAULT_EVENT_SETTINGS, INITIAL_APPROVED_MESSAGES } from '../config/defaults'
+import { DEFAULT_EVENT_SETTINGS } from '../config/defaults'
 
 // Environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
@@ -63,11 +63,14 @@ function setLocalRSVPs(list: RSVP[]) {
 function getLocalMessages(): GuestMessage[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.MESSAGES)
-    if (raw) return JSON.parse(raw)
+    if (raw) {
+      const list: GuestMessage[] = JSON.parse(raw)
+      return list.filter((m) => !m.id.startsWith('msg-seed-'))
+    }
   } catch (e) {
     console.error('Error reading messages from localStorage', e)
   }
-  return INITIAL_APPROVED_MESSAGES
+  return []
 }
 
 function setLocalMessages(list: GuestMessage[]) {
@@ -397,12 +400,12 @@ export async function signInAdmin(email: string, password: string): Promise<{ su
     }
   }
 
-  if ((email === 'admin@safaridolucca.com.br' || email === 'lucca@safari.com' || email.includes('admin')) && password.length >= 6) {
-    localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify({ email, authenticated: true, isMock: true }))
+  if (email.trim().toLowerCase() === 'admin@safaridolucca.com.br' && password === '937146') {
+    localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify({ email: 'admin@safaridolucca.com.br', authenticated: true }))
     return { success: true }
   }
 
-  return { success: false, error: 'Credenciais inválidas. Para demonstração use admin@safaridolucca.com.br e safari2026.' }
+  return { success: false, error: 'Credenciais inválidas. Verifique seu e-mail e senha.' }
 }
 
 export async function signOutAdmin(): Promise<void> {

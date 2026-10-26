@@ -111,13 +111,13 @@ describe('Services: Supabase & Offline Local Storage', () => {
     expect(stats.total_attendees).toBe(4) // 1 confirmed + 3 companions
   })
 
-  it('should authenticate admin with demo credentials', async () => {
+  it('should authenticate admin with credentials', async () => {
     expect(checkIsAdminAuthenticated()).toBe(false)
 
     const failRes = await signInAdmin('wrong@email.com', '123')
     expect(failRes.success).toBe(false)
 
-    const successRes = await signInAdmin('admin@safaridolucca.com.br', 'safari2026')
+    const successRes = await signInAdmin('admin@safaridolucca.com.br', '937146')
     expect(successRes.success).toBe(true)
     expect(checkIsAdminAuthenticated()).toBe(true)
 

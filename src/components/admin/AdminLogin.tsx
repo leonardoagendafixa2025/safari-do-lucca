@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Lock, Mail, KeyRound, Loader2, ArrowLeft } from 'lucide-react'
-import { signInAdmin, isSupabaseConfigured } from '../../services/supabase'
+import { signInAdmin } from '../../services/supabase'
 import { LionCub } from '../illustrations'
 
 interface AdminLoginProps {
@@ -34,10 +34,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onBackTo
     }
   }
 
-  const fillDemoCredentials = () => {
-    setEmail('admin@safaridolucca.com.br')
-    setPassword('safari2026')
-  }
 
   return (
     <div
@@ -206,33 +202,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onBackTo
           </button>
         </form>
 
-        {/* Demo / Test helper button */}
-        {!isSupabaseConfigured && (
-          <div
-            style={{
-              marginTop: '1.5rem',
-              paddingTop: '1rem',
-              borderTop: '1px dashed var(--color-sand-300)',
-              textAlign: 'center',
-            }}
-          >
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
-              Modo de Demonstração / Testes ativo
-            </p>
-            <button
-              type="button"
-              onClick={fillDemoCredentials}
-              style={{
-                fontSize: '0.8rem',
-                color: 'var(--color-sage-800)',
-                fontWeight: 700,
-                textDecoration: 'underline',
-              }}
-            >
-              Preencher credenciais de demonstração
-            </button>
-          </div>
-        )}
       </motion.div>
     </div>
   )

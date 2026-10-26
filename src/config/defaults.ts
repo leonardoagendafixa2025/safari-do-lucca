@@ -24,32 +24,5 @@ export const DEFAULT_EVENT_SETTINGS: EventSettings = {
   messages_require_moderation: true,
 }
 
-export const INITIAL_APPROVED_MESSAGES: GuestMessage[] = [
-  {
-    id: 'msg-seed-1',
-    author_name: 'Vovô e Vovó',
-    relationship: 'Avós',
-    message: 'Nosso exploradorzinho favorito! Que a sua vida seja sempre cheia de alegria, saúde e descobertas encantadoras. Amamos você além do infinito!',
-    status: 'approved',
-    animal_avatar: 'lion',
-    created_at: '2026-10-20T14:30:00Z',
-  },
-  {
-    id: 'msg-seed-2',
-    author_name: 'Dinda Marina',
-    relationship: 'Madrinha',
-    message: 'Parece que foi ontem que você chegou iluminando tudo ao seu redor! Mal posso esperar para comemorar seu 1º aninho nessa festa linda!',
-    status: 'approved',
-    animal_avatar: 'giraffe',
-    created_at: '2026-10-21T10:15:00Z',
-  },
-  {
-    id: 'msg-seed-3',
-    author_name: 'Tio Lucas e Família',
-    relationship: 'Tios',
-    message: 'Preparados para essa expedição selvagem de pura fofura! Parabéns ao Lucca e aos papais por esse primeiro ano abençoado!',
-    status: 'approved',
-    animal_avatar: 'elephant',
-    created_at: '2026-10-22T18:45:00Z',
-  },
-]
+export const INITIAL_APPROVED_MESSAGES: GuestMessage[] = []
+
