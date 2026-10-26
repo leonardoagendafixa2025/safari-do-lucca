@@ -159,7 +159,7 @@ export const EventDetailsSection: React.FC<EventDetailsSectionProps> = ({ settin
             }}
           >
             <Clock size={18} />
-            <span>{settings.event_time_display || '16:00 às 21:00'}</span>
+            <span>{settings.event_time_display || 'Início às 14:00h'}</span>
           </div>
 
           {/* Add to Calendar Button */}

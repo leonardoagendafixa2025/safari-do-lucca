@@ -196,7 +196,7 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
             </label>
             <input
               type="text"
-              placeholder="Ex: 16:00 às 21:00"
+              placeholder="Ex: Início às 14:00h"
               value={formData.event_time_display}
               onChange={(e) => handleChange('event_time_display', e.target.value)}
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}

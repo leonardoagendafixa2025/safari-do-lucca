@@ -102,7 +102,7 @@ export const LocationSection: React.FC<LocationSectionProps> = ({ settings }) =>
               marginBottom: '0.5rem',
             }}
           >
-            {settings.venue_name || 'Espaço Safari Encantado'}
+            {settings.venue_name || 'Salão de Festas'}
           </h3>
 
           {/* Address */}

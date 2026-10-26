@@ -29,7 +29,13 @@ const STORAGE_KEYS = {
 function getLocalSettings(): EventSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS)
-    if (raw) return JSON.parse(raw)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (parsed.venue_name === 'Espaço Safari Encantado') {
+        return DEFAULT_EVENT_SETTINGS
+      }
+      return { ...DEFAULT_EVENT_SETTINGS, ...parsed }
+    }
   } catch (e) {
     console.error('Error reading settings from localStorage', e)
   }
