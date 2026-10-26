@@ -14,7 +14,7 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { level: 1, name: /Lucca/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /Entrar no Safari/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Começar a Aventura/i })).toBeInTheDocument()
     })
   })
 

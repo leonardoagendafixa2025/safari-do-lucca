@@ -4,7 +4,7 @@ export const DEFAULT_EVENT_SETTINGS: EventSettings = {
   id: 'main_event',
   child_name: 'Lucca',
   event_title: 'Safari do Lucca',
-  event_subtitle: 'Uma Grande Aventura • 1 Aninho',
+  event_subtitle: 'Meu primeiro aninho',
   event_date: '2026-12-12T14:00:00',
   event_time_display: 'Início às 14:00h',
   timezone: 'America/Sao_Paulo',

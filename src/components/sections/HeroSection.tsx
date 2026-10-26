@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
-import { Compass, Sparkles, ChevronDown } from 'lucide-react'
+import { Compass, ChevronDown } from 'lucide-react'
 import type { EventSettings } from '../../types'
 import { SafariBird, PalmFrond, HangingVine } from '../illustrations'
 import { useAudio } from '../../context/AudioContext'
@@ -107,82 +107,104 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ settings, onEnter }) =
             textAlign: 'center',
           }}
         >
-          {/* Safari Explorer Badge */}
+          {/* Badge: ✧ UMA MISSÃO ESPECIAL ✧ */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
             className="gold-badge"
-            style={{ marginBottom: '1.25rem' }}
+            style={{
+              marginBottom: '1.25rem',
+              letterSpacing: '0.1em',
+              fontWeight: 800,
+              fontSize: '0.85rem',
+            }}
           >
-            <Compass size={16} color="var(--color-gold-500)" />
-            <span>Convite Especial • Safari Baby</span>
+            <span>✧ UMA MISSÃO ESPECIAL ✧</span>
           </motion.div>
 
-          {/* Subtitle Invitation Callout */}
+          {/* Callout: PREPARE-SE PARA EXPLORAR! */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.7 }}
             style={{
               fontFamily: 'var(--font-heading)',
-              fontSize: '1.05rem',
-              letterSpacing: '0.1em',
+              fontSize: 'clamp(1rem, 3vw, 1.25rem)',
+              letterSpacing: '0.12em',
               textTransform: 'uppercase',
               color: 'var(--color-sage-800)',
-              fontWeight: 700,
+              fontWeight: 800,
               marginBottom: '0.5rem',
             }}
           >
-            Você está convidado para uma grande aventura!
+            PREPARE-SE PARA EXPLORAR!
           </motion.p>
 
-          {/* Big Name "LUCCA" with majestic typography */}
+          {/* Big Name "Lucca" */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{ position: 'relative', margin: '0.25rem 0 0.75rem 0' }}
+            style={{ position: 'relative', margin: '0.2rem 0 0.6rem 0' }}
           >
             <h1
               style={{
                 fontFamily: 'var(--font-display)',
                 fontSize: 'clamp(3.5rem, 11vw, 5.5rem)',
                 fontWeight: 800,
-                letterSpacing: '0.04em',
+                letterSpacing: '0.03em',
                 lineHeight: 1.05,
                 color: 'var(--color-brown-900)',
                 textShadow: '0 2px 10px rgba(92, 69, 51, 0.08)',
               }}
             >
-              {settings.child_name || 'LUCCA'}
+              {settings.child_name || 'Lucca'}
             </h1>
 
             {/* Underline accent with sparkles */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginTop: '0.35rem' }}>
               <span style={{ width: '45px', height: '2px', background: 'var(--color-gold-400)', borderRadius: '2px' }} />
-              <Sparkles size={16} color="var(--color-gold-500)" />
+              <Compass size={16} color="var(--color-gold-500)" />
               <span style={{ width: '45px', height: '2px', background: 'var(--color-gold-400)', borderRadius: '2px' }} />
             </div>
           </motion.div>
 
-          {/* Subtitle: 1 Aninho */}
+          {/* Subtitle: Meu primeiro aninho */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.7 }}
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(1.2rem, 3.2vw, 1.65rem)',
+              fontSize: 'clamp(1.35rem, 3.8vw, 1.85rem)',
               fontStyle: 'italic',
+              fontWeight: 700,
               color: 'var(--color-terracotta-700)',
-              marginBottom: '1.75rem',
+              marginBottom: '0.65rem',
             }}
           >
-            {settings.event_subtitle || 'Uma Grande Aventura • 1 Aninho'}
+            {settings.event_subtitle || 'Meu primeiro aninho'}
           </motion.p>
 
-          {/* Entrance Button "ENTRAR NO SAFARI" */}
+          {/* Invitation intro text */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.7 }}
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 'clamp(0.95rem, 2.5vw, 1.05rem)',
+              color: 'var(--color-text-muted)',
+              lineHeight: 1.55,
+              maxWidth: '440px',
+              margin: '0 auto 1.85rem auto',
+            }}
+          >
+            Uma celebração cheia de encanto, descobertas e alegria espera por você!
+          </motion.p>
+
+          {/* Entrance Button: ◉ COMEÇAR A AVENTURA */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -193,22 +215,25 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ settings, onEnter }) =
               onClick={handleEnterSafari}
               className="btn-primary"
               style={{
-                padding: '1.15rem 2.5rem',
+                padding: '1.15rem 2.6rem',
                 fontSize: '1.15rem',
                 letterSpacing: '0.06em',
                 boxShadow: '0 10px 25px rgba(88, 124, 96, 0.35)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.65rem',
               }}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
             >
-              <Compass size={22} />
-              <span>Entrar no Safari</span>
+              <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>◉</span>
+              <span>COMEÇAR A AVENTURA</span>
             </motion.button>
           </motion.div>
 
           {/* Helper subtext */}
           <p style={{ marginTop: '0.95rem', fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-            Toque para abrir a aventura e iniciar a trilha sonora
+            Toque para entrar e descobrir essa surpresa especial.
           </p>
 
           {/* Scroll indicator */}
