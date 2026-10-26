@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Heart, Sparkles, Volume2, VolumeX, Play } from 'lucide-react'
+import { Heart, Sparkles } from 'lucide-react'
 import type { EventSettings } from '../../types'
 import { FootprintsTrail, MonsteraLeaf } from '../illustrations'
 
@@ -10,8 +10,6 @@ interface IntroMessageSectionProps {
 
 export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settings }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [isMuted, setIsMuted] = useState(true)
-  const [isPlaying, setIsPlaying] = useState(true)
 
   useEffect(() => {
     const video = videoRef.current
@@ -26,29 +24,9 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
 
     const p = video.play()
     if (p !== undefined) {
-      p.then(() => setIsPlaying(true)).catch(() => {})
+      p.catch(() => {})
     }
   }, [])
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    const video = videoRef.current
-    if (!video) return
-    const next = !video.muted
-    video.muted = next
-    setIsMuted(next)
-  }
-
-  const togglePlay = () => {
-    const video = videoRef.current
-    if (!video) return
-    if (video.paused) {
-      video.play().then(() => setIsPlaying(true)).catch(() => {})
-    } else {
-      video.pause()
-      setIsPlaying(false)
-    }
-  }
 
   return (
     <section
@@ -81,6 +59,7 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
             maxWidth: '680px',
             margin: '0 auto',
             position: 'relative',
+            background: '#FFFFFF',
           }}
         >
           {/* Decorative Corner Foliage */}
@@ -117,116 +96,38 @@ export const IntroMessageSection: React.FC<IntroMessageSectionProps> = ({ settin
             Nossa Maior Aventura
           </h2>
 
-          {/* Lucca's Special Animation Video (Vertical 9:16 Reel Frame) */}
+          {/* Lucca's Special Animation Video (Clean White Background, No Borders, No Frame, No Sound) */}
           <div
             style={{
               margin: '0.5rem auto 1.75rem auto',
               width: '100%',
-              maxWidth: '320px',
-              position: 'relative',
+              maxWidth: '380px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              background: '#FFFFFF',
             }}
           >
-            <div
+            <video
+              ref={videoRef}
+              src="/luca.mp4"
+              poster="/luca_poster.jpg"
+              playsInline
+              autoPlay
+              muted
+              loop
+              preload="auto"
               style={{
-                position: 'relative',
-                borderRadius: '24px',
-                overflow: 'hidden',
-                border: '2.5px solid rgba(229, 190, 94, 0.75)',
-                boxShadow: '0 20px 40px -10px rgba(45, 34, 23, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.8) inset',
-                background: '#000000',
-                cursor: 'pointer',
-                aspectRatio: '9 / 16',
+                width: '100%',
+                maxWidth: '380px',
+                height: 'auto',
+                display: 'block',
+                background: '#FFFFFF',
+                border: 'none',
+                outline: 'none',
+                boxShadow: 'none',
               }}
-              onClick={togglePlay}
-            >
-              {/* Video Element */}
-              <video
-                ref={videoRef}
-                src="/luca.mp4"
-                poster="/luca_poster.jpg"
-                playsInline
-                autoPlay
-                muted
-                loop
-                preload="auto"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                }}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-              />
-
-              {/* Sound Toggle Button */}
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '12px',
-                  right: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  zIndex: 5,
-                }}
-              >
-                <button
-                  onClick={toggleMute}
-                  aria-label={isMuted ? 'Ativar som do vídeo' : 'Silenciar som do vídeo'}
-                  style={{
-                    background: 'rgba(45, 34, 23, 0.82)',
-                    backdropFilter: 'blur(8px)',
-                    color: '#FFFFFF',
-                    border: '1px solid rgba(255, 255, 255, 0.5)',
-                    borderRadius: 'var(--radius-full)',
-                    padding: '0.45rem 0.9rem',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
-                  <span>{isMuted ? 'Ativar Som' : 'Silenciar'}</span>
-                </button>
-              </div>
-
-              {/* Play / Pause Overlay Icon when paused */}
-              {!isPlaying && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'rgba(0, 0, 0, 0.3)',
-                    pointerEvents: 'none',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '60px',
-                      height: '60px',
-                      borderRadius: '50%',
-                      background: 'rgba(255, 255, 255, 0.92)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'var(--color-brown-900)',
-                      boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
-                    }}
-                  >
-                    <Play size={26} fill="currentColor" style={{ marginLeft: '3px' }} />
-                  </div>
-                </div>
-              )}
-            </div>
+            />
           </div>
 
           {/* Loving Message Text (Editable from Admin Panel!) */}
