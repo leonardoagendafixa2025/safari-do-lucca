@@ -453,7 +453,7 @@ export const RSVPSection: React.FC<RSVPSectionProps> = ({ settings }) => {
                 ) : (
                   <>
                     <Sparkles size={20} />
-                    <span>Confirmar Resposta</span>
+                    <span>CONFIRMAR PRESENÇA</span>
                   </>
                 )}
               </button>

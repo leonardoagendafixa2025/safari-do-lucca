@@ -36,7 +36,7 @@ describe('App Component', () => {
     const nameInput = screen.getByPlaceholderText(/Ex: Ana Maria Silva/i)
     fireEvent.change(nameInput, { target: { value: 'Maria Silva' } })
 
-    const confirmButton = screen.getByRole('button', { name: /Confirmar Resposta/i })
+    const confirmButton = screen.getByRole('button', { name: /Confirmar Presença/i })
     expect(confirmButton).toBeInTheDocument()
   })
 
