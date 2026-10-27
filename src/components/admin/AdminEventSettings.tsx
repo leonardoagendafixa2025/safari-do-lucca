@@ -25,6 +25,14 @@ function parseDatePart(dateStr?: string): string {
   return '2026-12-12'
 }
 
+const TIME_OPTIONS = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+  '18:00', '18:30', '19:00', '19:30', '20:00', '20:30',
+  '21:00', '21:30', '22:00',
+]
+
 // Helper to parse timePart (HH:mm) from any date string or display text
 function parseTimePart(dateStr?: string, displayStr?: string): string {
   if (displayStr) {
@@ -32,12 +40,14 @@ function parseTimePart(dateStr?: string, displayStr?: string): string {
     if (matchDisplay) {
       const hh = matchDisplay[1].padStart(2, '0')
       const mm = matchDisplay[2] ? matchDisplay[2].padStart(2, '0') : '00'
-      return `${hh}:${mm}`
+      if (hh !== '00') {
+        return `${hh}:${mm}`
+      }
     }
   }
   if (dateStr) {
     const matchTime = dateStr.match(/[T\s](\d{2}):(\d{2})/)
-    if (matchTime) {
+    if (matchTime && matchTime[1] !== '00') {
       return `${matchTime[1]}:${matchTime[2]}`
     }
   }
@@ -295,12 +305,59 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-brown-900)', marginBottom: '0.35rem' }}>
               Horário do Evento
             </label>
-            <input
-              type="time"
+            <select
               value={timePart}
               onChange={(e) => handleTimeChange(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}
-            />
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1.5px solid var(--color-border)',
+                background: 'var(--color-cream-bg)',
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                color: 'var(--color-brown-900)',
+                cursor: 'pointer',
+              }}
+            >
+              {!TIME_OPTIONS.includes(timePart) && (
+                <option value={timePart}>{timePart}h (Personalizado)</option>
+              )}
+              {TIME_OPTIONS.map((time) => (
+                <option key={time} value={time}>
+                  {time}h {time === '16:00' ? '★ (16h - Definido)' : ''}
+                </option>
+              ))}
+            </select>
+
+            {/* Atalhos Rápidos */}
+            <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Atalhos:</span>
+              {['14:00', '15:00', '16:00', '17:00', '18:00'].map((preset) => {
+                const isSelected = timePart === preset
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => handleTimeChange(preset)}
+                    style={{
+                      padding: '0.25rem 0.6rem',
+                      borderRadius: 'var(--radius-full)',
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      border: isSelected ? '1.5px solid var(--color-sage-600)' : '1px solid var(--color-border)',
+                      background: isSelected ? 'var(--color-sage-600)' : '#FFFFFF',
+                      color: isSelected ? '#FFFFFF' : 'var(--color-brown-900)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      boxShadow: isSelected ? '0 2px 6px rgba(78, 110, 84, 0.25)' : 'none',
+                    }}
+                  >
+                    {preset === '16:00' ? '16h ★' : `${preset.slice(0, 2)}h`}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           <div>
