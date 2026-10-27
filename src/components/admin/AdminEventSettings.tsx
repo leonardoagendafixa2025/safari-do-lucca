@@ -25,17 +25,17 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  // Derive date and time parts from ISO string (e.g. "2026-12-12T14:00:00")
-  const rawDateStr = formData.event_date || '2026-12-12T14:00:00'
+  // Derive date and time parts from ISO string (e.g. "2026-12-12T16:00:00")
+  const rawDateStr = formData.event_date || '2026-12-12T16:00:00'
   const datePart = rawDateStr.split('T')[0] || '2026-12-12'
-  const timePart = (rawDateStr.split('T')[1] || '14:00').slice(0, 5)
+  const timePart = (rawDateStr.split('T')[1] || '16:00').slice(0, 5)
 
   // Format date preview
   const previewDate = formatEventDate(rawDateStr)
 
   // Handler for Date change
   const handleDateChange = (newDate: string) => {
-    const updatedIso = `${newDate}T${timePart || '14:00'}:00`
+    const updatedIso = `${newDate}T${timePart || '16:00'}:00`
     handleChange('event_date', updatedIso)
   }
 
@@ -45,7 +45,7 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
     const currentDisplay = formData.event_time_display || ''
     let newDisplay = `Início às ${newTime}h`
 
-    // If the display text already had a custom format like "14:00 às 20:00" or "Início às 14:00h"
+    // If the display text already had a custom format like "16:00 às 20:00" or "Início às 16:00h"
     if (currentDisplay.includes(' às ') || currentDisplay.includes(' as ')) {
       newDisplay = currentDisplay.replace(/^\d{1,2}:\d{2}/, newTime).replace(/Início às \d{1,2}:\d{2}h?/i, `Início às ${newTime}h`)
     }
@@ -59,11 +59,11 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
 
   // Handler for direct text display change
   const handleDisplayTimeChange = (text: string) => {
-    const match = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/)
+    const match = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/) || text.match(/\b([01]?\d|2[0-3])h([0-5]\d)?\b/i)
     let updatedIso = formData.event_date
     if (match) {
       const hh = match[1].padStart(2, '0')
-      const mm = match[2]
+      const mm = match[2] ? match[2].padStart(2, '0') : '00'
       updatedIso = `${datePart}T${hh}:${mm}:00`
     }
     setFormData(prev => ({
@@ -262,7 +262,7 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
             </label>
             <input
               type="text"
-              placeholder="Ex: Início às 14:00h ou 14:00 às 19:00"
+              placeholder="Ex: Início às 16:00h ou 16:00 às 21:00"
               value={formData.event_time_display}
               onChange={(e) => handleDisplayTimeChange(e.target.value)}
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}

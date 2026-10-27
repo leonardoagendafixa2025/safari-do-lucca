@@ -47,7 +47,7 @@ export function formatEventTime(settings: EventSettings): string {
       return `Início às ${match[1]}:${match[2]}h`
     }
   }
-  return 'Início às 14:00h'
+  return 'Início às 16:00h'
 }
 
 export function generateGoogleCalendarUrl(settings: EventSettings): string {

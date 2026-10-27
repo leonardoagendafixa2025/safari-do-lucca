@@ -55,7 +55,7 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /Data & Horário/i })).toBeInTheDocument()
-      expect(screen.getByText(/Início às 14:00h/i)).toBeInTheDocument()
+      expect(screen.getByText(/Início às 16:00h/i)).toBeInTheDocument()
     })
   })
 })

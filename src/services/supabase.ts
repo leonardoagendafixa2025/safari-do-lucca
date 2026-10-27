@@ -34,6 +34,12 @@ function getLocalSettings(): EventSettings {
       if (parsed.venue_name === 'Espaço Safari Encantado') {
         parsed.venue_name = DEFAULT_EVENT_SETTINGS.venue_name
       }
+      if (parsed.event_time_display === 'Início às 14:00h' || !parsed.event_time_display) {
+        parsed.event_time_display = DEFAULT_EVENT_SETTINGS.event_time_display
+      }
+      if (parsed.event_date && parsed.event_date.includes('T14:00')) {
+        parsed.event_date = parsed.event_date.replace('T14:00', 'T16:00')
+      }
       return { ...DEFAULT_EVENT_SETTINGS, ...parsed }
     }
   } catch (e) {
@@ -91,6 +97,12 @@ export async function getEventSettings(): Promise<EventSettings> {
         .maybeSingle()
 
       if (!error && data) {
+        if (data.event_time_display === 'Início às 14:00h') {
+          data.event_time_display = DEFAULT_EVENT_SETTINGS.event_time_display
+        }
+        if (data.event_date && data.event_date.includes('T14:00')) {
+          data.event_date = data.event_date.replace('T14:00', 'T16:00')
+        }
         return {
           ...DEFAULT_EVENT_SETTINGS,
           ...data,

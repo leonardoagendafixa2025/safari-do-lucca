@@ -9,15 +9,15 @@ CREATE TABLE IF NOT EXISTS public.event_settings (
   child_name TEXT NOT NULL DEFAULT 'Lucca',
   event_title TEXT NOT NULL DEFAULT 'Safari do Lucca',
   event_subtitle TEXT NOT NULL DEFAULT 'Uma Grande Aventura • 1 Aninho',
-  event_date TIMESTAMPTZ NOT NULL DEFAULT '2026-11-21 16:00:00-03',
-  event_time_display TEXT NOT NULL DEFAULT '16:00 às 21:00',
+  event_date TIMESTAMPTZ NOT NULL DEFAULT '2026-12-12 16:00:00-03',
+  event_time_display TEXT NOT NULL DEFAULT 'Início às 16:00h',
   timezone TEXT NOT NULL DEFAULT 'America/Sao_Paulo',
   venue_name TEXT NOT NULL DEFAULT 'Espaço Safari Encantado',
   venue_address TEXT NOT NULL DEFAULT 'Av. das Palmeiras, 1500 - Jardim Primavera, São Paulo - SP',
   maps_url TEXT NOT NULL DEFAULT 'https://maps.google.com/?q=Av.+das+Palmeiras,+1500+-+Jardim+Primavera,+São+Paulo+-+SP',
   intro_message TEXT NOT NULL DEFAULT 'Há um ano, começou a aventura mais linda das nossas vidas. Agora, chegou a hora de celebrar o primeiro aninho do nosso pequeno explorador!',
   closing_message TEXT NOT NULL DEFAULT 'Esperamos você e sua família para viver essa grande aventura com a gente! Com muito amor, Lucca e Papais.',
-  rsvp_deadline DATE NOT NULL DEFAULT '2026-11-10',
+  rsvp_deadline DATE NOT NULL DEFAULT '2026-12-01',
   max_companions INT NOT NULL DEFAULT 4,
   audio_url TEXT DEFAULT '/musica.mp3',
   audio_title TEXT DEFAULT 'Aventura no Safari',
@@ -44,7 +44,7 @@ DROP POLICY IF EXISTS "Admin can update event settings" ON public.event_settings
 CREATE POLICY "Admin can update event settings"
   ON public.event_settings
   FOR ALL
-  TO authenticated
+  TO anon, authenticated
   USING (true)
   WITH CHECK (true);
 
