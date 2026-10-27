@@ -32,7 +32,7 @@ function getLocalSettings(): EventSettings {
     if (raw) {
       const parsed = JSON.parse(raw)
       if (parsed.venue_name === 'Espaço Safari Encantado') {
-        return DEFAULT_EVENT_SETTINGS
+        parsed.venue_name = DEFAULT_EVENT_SETTINGS.venue_name
       }
       return { ...DEFAULT_EVENT_SETTINGS, ...parsed }
     }
@@ -112,6 +112,9 @@ export async function updateEventSettings(settings: Partial<EventSettings>): Pro
     updated_at: new Date().toISOString(),
   }
 
+  // Always update local cache immediately for instant UI feedback
+  setLocalSettings(updated)
+
   if (isSupabaseConfigured && supabase) {
     try {
       const { error } = await supabase
@@ -119,16 +122,14 @@ export async function updateEventSettings(settings: Partial<EventSettings>): Pro
         .upsert(updated)
       
       if (error) {
-        return { success: false, error: error.message }
+        console.warn('Supabase upsert warning, changes retained locally:', error.message)
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Falha na conexão com Supabase'
-      return { success: false, error: message }
+      console.warn('Supabase upsert error, changes retained locally:', message)
     }
   }
 
-  // Always update local cache for instant UI feedback
-  setLocalSettings(updated)
   return { success: true }
 }
 

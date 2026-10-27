@@ -10,7 +10,17 @@ interface EventDetailsSectionProps {
 
 export function formatEventDate(isoString: string): { dayOfWeek: string; fullDate: string } {
   try {
-    const date = new Date(isoString)
+    let date: Date
+    if (isoString.includes('T')) {
+      date = new Date(isoString)
+    } else {
+      const parts = isoString.split('-').map(Number)
+      if (parts.length === 3) {
+        date = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0)
+      } else {
+        date = new Date(isoString)
+      }
+    }
     if (isNaN(date.getTime())) {
       return { dayOfWeek: 'Data a definir', fullDate: 'A definir' }
     }
@@ -25,6 +35,19 @@ export function formatEventDate(isoString: string): { dayOfWeek: string; fullDat
   } catch {
     return { dayOfWeek: 'Em breve', fullDate: 'Em breve' }
   }
+}
+
+export function formatEventTime(settings: EventSettings): string {
+  if (settings.event_time_display && settings.event_time_display.trim()) {
+    return settings.event_time_display
+  }
+  if (settings.event_date) {
+    const match = settings.event_date.match(/T(\d{2}):(\d{2})/)
+    if (match) {
+      return `Início às ${match[1]}:${match[2]}h`
+    }
+  }
+  return 'Início às 14:00h'
 }
 
 export function generateGoogleCalendarUrl(settings: EventSettings): string {
@@ -159,7 +182,7 @@ export const EventDetailsSection: React.FC<EventDetailsSectionProps> = ({ settin
             }}
           >
             <Clock size={18} />
-            <span>{settings.event_time_display || 'Início às 14:00h'}</span>
+            <span>{formatEventTime(settings)}</span>
           </div>
 
           {/* Add to Calendar Button */}

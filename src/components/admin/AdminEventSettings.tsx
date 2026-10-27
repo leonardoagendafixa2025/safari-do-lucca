@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Save, CheckCircle2, Music, Calendar, MessageSquare, Sliders, Upload, Loader2 } from 'lucide-react'
+import { Save, CheckCircle2, Music, Calendar, MessageSquare, Sliders, Upload, Loader2, Clock } from 'lucide-react'
 import type { EventSettings } from '../../types'
 import { updateEventSettings } from '../../services/supabase'
+import { formatEventDate } from '../sections/EventDetailsSection'
 
 interface AdminEventSettingsProps {
   settings: EventSettings
@@ -15,8 +16,61 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
+  // Keep form in sync whenever settings are loaded or updated
+  useEffect(() => {
+    setFormData({ ...settings })
+  }, [settings])
+
   const handleChange = (field: keyof EventSettings, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  // Derive date and time parts from ISO string (e.g. "2026-12-12T14:00:00")
+  const rawDateStr = formData.event_date || '2026-12-12T14:00:00'
+  const datePart = rawDateStr.split('T')[0] || '2026-12-12'
+  const timePart = (rawDateStr.split('T')[1] || '14:00').slice(0, 5)
+
+  // Format date preview
+  const previewDate = formatEventDate(rawDateStr)
+
+  // Handler for Date change
+  const handleDateChange = (newDate: string) => {
+    const updatedIso = `${newDate}T${timePart || '14:00'}:00`
+    handleChange('event_date', updatedIso)
+  }
+
+  // Handler for Time change (updates both ISO date and the friendly display string)
+  const handleTimeChange = (newTime: string) => {
+    const updatedIso = `${datePart || '2026-12-12'}T${newTime}:00`
+    const currentDisplay = formData.event_time_display || ''
+    let newDisplay = `Início às ${newTime}h`
+
+    // If the display text already had a custom format like "14:00 às 20:00" or "Início às 14:00h"
+    if (currentDisplay.includes(' às ') || currentDisplay.includes(' as ')) {
+      newDisplay = currentDisplay.replace(/^\d{1,2}:\d{2}/, newTime).replace(/Início às \d{1,2}:\d{2}h?/i, `Início às ${newTime}h`)
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      event_date: updatedIso,
+      event_time_display: newDisplay,
+    }))
+  }
+
+  // Handler for direct text display change
+  const handleDisplayTimeChange = (text: string) => {
+    const match = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/)
+    let updatedIso = formData.event_date
+    if (match) {
+      const hh = match[1].padStart(2, '0')
+      const mm = match[2]
+      updatedIso = `${datePart}T${hh}:${mm}:00`
+    }
+    setFormData(prev => ({
+      ...prev,
+      event_time_display: text,
+      event_date: updatedIso,
+    }))
   }
 
   // Audio file picker handler (reads file to base64 DataURL for direct playback or storage)
@@ -177,28 +231,40 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
           <Calendar size={18} color="var(--color-sage-600)" /> Data, Horário e Local
         </h4>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-brown-900)', marginBottom: '0.35rem' }}>
-              Data e Hora do Evento (ISO)
+              Data do Evento
             </label>
             <input
-              type="datetime-local"
-              value={formData.event_date.slice(0, 16)}
-              onChange={(e) => handleChange('event_date', e.target.value)}
+              type="date"
+              value={datePart}
+              onChange={(e) => handleDateChange(e.target.value)}
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}
             />
           </div>
 
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-brown-900)', marginBottom: '0.35rem' }}>
-              Exibição Amigável do Horário
+              Horário do Evento
+            </label>
+            <input
+              type="time"
+              value={timePart}
+              onChange={(e) => handleTimeChange(e.target.value)}
+              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-brown-900)', marginBottom: '0.35rem' }}>
+              Texto do Horário no Convite
             </label>
             <input
               type="text"
-              placeholder="Ex: Início às 14:00h"
+              placeholder="Ex: Início às 14:00h ou 14:00 às 19:00"
               value={formData.event_time_display}
-              onChange={(e) => handleChange('event_time_display', e.target.value)}
+              onChange={(e) => handleDisplayTimeChange(e.target.value)}
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}
             />
           </div>
@@ -228,6 +294,41 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}
             />
           </div>
+        </div>
+
+        {/* Live Preview Banner & Instant Save */}
+        <div
+          style={{
+            padding: '1rem 1.25rem',
+            background: 'var(--color-sage-100)',
+            borderRadius: 'var(--radius-md)',
+            border: '1.5px solid var(--color-sage-300)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            marginBottom: '1.5rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--color-sage-800)', fontSize: '0.9rem' }}>
+            <Clock size={20} color="var(--color-sage-700)" />
+            <span>
+              <strong>Prévia no Convite:</strong> {previewDate.dayOfWeek}, {previewDate.fullDate} •{' '}
+              <strong style={{ color: 'var(--color-brown-900)', fontSize: '1rem' }}>
+                {formData.event_time_display || `Início às ${timePart}h`}
+              </strong>
+            </span>
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="btn-primary"
+            style={{ padding: '0.5rem 1.25rem', fontSize: '0.875rem' }}
+          >
+            {saving ? 'Salvando...' : 'Salvar Data & Horário'}
+          </button>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
@@ -419,6 +520,41 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
             <span>Exibir Mural de Carinho</span>
           </label>
         </div>
+      </div>
+
+      {/* Save action bar bottom */}
+      <div
+        className="safari-card"
+        style={{
+          padding: '1.25rem 1.75rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          background: 'rgba(255, 253, 249, 0.95)',
+        }}
+      >
+        <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+          Pronto para atualizar? As alterações refletem imediatamente no convite.
+        </span>
+
+        <button
+          type="submit"
+          disabled={saving}
+          className="btn-primary"
+          style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}
+        >
+          {saving ? (
+            <>
+              <Loader2 size={18} className="animate-spin" /> Salvando...
+            </>
+          ) : (
+            <>
+              <Save size={18} /> Salvar Todas as Alterações
+            </>
+          )}
+        </button>
       </div>
     </form>
   )

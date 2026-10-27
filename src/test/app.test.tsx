@@ -49,4 +49,13 @@ describe('App Component', () => {
       expect(screen.getByPlaceholderText(/exemplo@safaridolucca.com.br/i)).toBeInTheDocument()
     })
   })
+
+  it('renders event details with formatted date and time', async () => {
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /Data & Horário/i })).toBeInTheDocument()
+      expect(screen.getByText(/Início às 14:00h/i)).toBeInTheDocument()
+    })
+  })
 })

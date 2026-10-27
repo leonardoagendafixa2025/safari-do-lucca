@@ -31,6 +31,18 @@ describe('Services: Supabase & Offline Local Storage', () => {
     expect(updated.venue_name).toBe('Espaço Selva Mágica')
   })
 
+  it('should update and persist event date and time display', async () => {
+    const res = await updateEventSettings({
+      event_date: '2026-12-12T16:30:00',
+      event_time_display: 'Início às 16:30h',
+    })
+    expect(res.success).toBe(true)
+
+    const updated = await getEventSettings()
+    expect(updated.event_date).toBe('2026-12-12T16:30:00')
+    expect(updated.event_time_display).toBe('Início às 16:30h')
+  })
+
   it('should validate empty guest name when submitting RSVP', async () => {
     const res = await submitRSVP({
       guest_name: ' ',
