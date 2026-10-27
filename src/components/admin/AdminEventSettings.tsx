@@ -10,6 +10,40 @@ interface AdminEventSettingsProps {
   onSettingsUpdated: (newSettings: EventSettings) => void
 }
 
+// Helper to parse datePart (YYYY-MM-DD) from any date string
+function parseDatePart(dateStr?: string): string {
+  if (!dateStr) return '2026-12-12'
+  const match = dateStr.match(/(\d{4}-\d{2}-\d{2})/)
+  if (match) return match[1]
+  const d = new Date(dateStr)
+  if (!isNaN(d.getTime())) {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+  return '2026-12-12'
+}
+
+// Helper to parse timePart (HH:mm) from any date string or display text
+function parseTimePart(dateStr?: string, displayStr?: string): string {
+  if (displayStr) {
+    const matchDisplay = displayStr.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/) || displayStr.match(/\b([01]?\d|2[0-3])h([0-5]\d)?\b/i)
+    if (matchDisplay) {
+      const hh = matchDisplay[1].padStart(2, '0')
+      const mm = matchDisplay[2] ? matchDisplay[2].padStart(2, '0') : '00'
+      return `${hh}:${mm}`
+    }
+  }
+  if (dateStr) {
+    const matchTime = dateStr.match(/[T\s](\d{2}):(\d{2})/)
+    if (matchTime) {
+      return `${matchTime[1]}:${matchTime[2]}`
+    }
+  }
+  return '16:00'
+}
+
 export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings, onSettingsUpdated }) => {
   const [formData, setFormData] = useState<EventSettings>({ ...settings })
   const [saving, setSaving] = useState(false)
@@ -25,23 +59,24 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  // Derive date and time parts from ISO string (e.g. "2026-12-12T16:00:00")
-  const rawDateStr = formData.event_date || '2026-12-12T16:00:00'
-  const datePart = rawDateStr.split('T')[0] || '2026-12-12'
-  const timePart = (rawDateStr.split('T')[1] || '16:00').slice(0, 5)
+  // Derive date and time parts cleanly and safely
+  const datePart = parseDatePart(formData.event_date)
+  const timePart = parseTimePart(formData.event_date, formData.event_time_display)
 
   // Format date preview
-  const previewDate = formatEventDate(rawDateStr)
+  const previewDate = formatEventDate(formData.event_date || '2026-12-12T16:00:00')
 
   // Handler for Date change
   const handleDateChange = (newDate: string) => {
-    const updatedIso = `${newDate}T${timePart || '16:00'}:00`
+    if (!newDate) return
+    const updatedIso = `${newDate}T${timePart}:00`
     handleChange('event_date', updatedIso)
   }
 
   // Handler for Time change (updates both ISO date and the friendly display string)
   const handleTimeChange = (newTime: string) => {
-    const updatedIso = `${datePart || '2026-12-12'}T${newTime}:00`
+    if (!newTime) return
+    const updatedIso = `${datePart}T${newTime}:00`
     const currentDisplay = formData.event_time_display || ''
     let newDisplay = `Início às ${newTime}h`
 
@@ -101,16 +136,28 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
     setSaveError(null)
 
     try {
-      const result = await updateEventSettings(formData)
+      const validDate = parseDatePart(formData.event_date)
+      const validTime = parseTimePart(formData.event_date, formData.event_time_display)
+      const cleanIso = `${validDate}T${validTime}:00`
+      const dataToSave: EventSettings = {
+        ...formData,
+        id: 'main_event',
+        event_date: cleanIso,
+        event_time_display: formData.event_time_display?.trim() || `Início às ${validTime}h`,
+      }
+
+      const result = await updateEventSettings(dataToSave)
       if (result.success) {
-        onSettingsUpdated(formData)
+        setFormData(dataToSave)
+        onSettingsUpdated(dataToSave)
         setSaveSuccess(true)
         setTimeout(() => setSaveSuccess(false), 4000)
       } else {
         setSaveError(result.error || 'Erro ao salvar alterações no Supabase.')
       }
-    } catch {
-      setSaveError('Erro inesperado ao salvar configurações.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro inesperado ao salvar configurações.'
+      setSaveError(msg)
     } finally {
       setSaving(false)
     }

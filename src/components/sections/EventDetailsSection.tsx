@@ -10,19 +10,21 @@ interface EventDetailsSectionProps {
 
 export function formatEventDate(isoString: string): { dayOfWeek: string; fullDate: string } {
   try {
+    if (!isoString) {
+      return { dayOfWeek: 'Sábado', fullDate: '12 de dezembro de 2026' }
+    }
+    const match = isoString.match(/(\d{4})-(\d{2})-(\d{2})/)
     let date: Date
-    if (isoString.includes('T')) {
-      date = new Date(isoString)
+    if (match) {
+      const y = parseInt(match[1], 10)
+      const m = parseInt(match[2], 10) - 1
+      const d = parseInt(match[3], 10)
+      date = new Date(y, m, d, 12, 0, 0)
     } else {
-      const parts = isoString.split('-').map(Number)
-      if (parts.length === 3) {
-        date = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0)
-      } else {
-        date = new Date(isoString)
-      }
+      date = new Date(isoString)
     }
     if (isNaN(date.getTime())) {
-      return { dayOfWeek: 'Data a definir', fullDate: 'A definir' }
+      return { dayOfWeek: 'Sábado', fullDate: '12 de dezembro de 2026' }
     }
     const dayOfWeek = new Intl.DateTimeFormat('pt-BR', { weekday: 'long' }).format(date)
     const capitalizedDay = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)
@@ -33,7 +35,7 @@ export function formatEventDate(isoString: string): { dayOfWeek: string; fullDat
     }).format(date)
     return { dayOfWeek: capitalizedDay, fullDate }
   } catch {
-    return { dayOfWeek: 'Em breve', fullDate: 'Em breve' }
+    return { dayOfWeek: 'Sábado', fullDate: '12 de dezembro de 2026' }
   }
 }
 

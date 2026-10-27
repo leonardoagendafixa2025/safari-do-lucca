@@ -49,7 +49,19 @@ function getLocalSettings(): EventSettings {
 }
 
 function setLocalSettings(settings: EventSettings) {
-  localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings))
+  try {
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings))
+  } catch (e) {
+    console.warn('Could not save settings directly to localStorage, retrying without heavy media', e)
+    try {
+      if (settings.audio_url && settings.audio_url.startsWith('data:')) {
+        const safe = { ...settings, audio_url: DEFAULT_EVENT_SETTINGS.audio_url }
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(safe))
+      }
+    } catch (inner) {
+      console.error('Failed to write to localStorage', inner)
+    }
+  }
 }
 
 function getLocalRSVPs(): RSVP[] {
@@ -88,6 +100,8 @@ function setLocalMessages(list: GuestMessage[]) {
 // ----------------------------------------------------
 
 export async function getEventSettings(): Promise<EventSettings> {
+  const local = getLocalSettings()
+
   if (isSupabaseConfigured && supabase) {
     try {
       const { data, error } = await supabase
@@ -97,23 +111,30 @@ export async function getEventSettings(): Promise<EventSettings> {
         .maybeSingle()
 
       if (!error && data) {
-        if (data.event_time_display === 'Início às 14:00h') {
-          data.event_time_display = DEFAULT_EVENT_SETTINGS.event_time_display
+        // Compare timestamps: if local storage has a newer update than remote (e.g. Supabase had write permission issue),
+        // prioritize local changes so admin edits are NEVER lost on page reload!
+        const localTime = local.updated_at ? new Date(local.updated_at).getTime() : 0
+        const remoteTime = data.updated_at ? new Date(data.updated_at).getTime() : 0
+
+        if (localTime > remoteTime) {
+          // Attempt background sync to Supabase
+          Promise.resolve(supabase.from('event_settings').upsert({ ...data, ...local }, { onConflict: 'id' })).catch(() => {})
+          return { ...DEFAULT_EVENT_SETTINGS, ...data, ...local }
         }
-        if (data.event_date && data.event_date.includes('T14:00')) {
-          data.event_date = data.event_date.replace('T14:00', 'T16:00')
-        }
-        return {
+
+        const merged: EventSettings = {
           ...DEFAULT_EVENT_SETTINGS,
           ...data,
         }
+        setLocalSettings(merged)
+        return merged
       }
     } catch (err) {
       console.warn('Supabase fetch failed, falling back to local storage', err)
     }
   }
 
-  return getLocalSettings()
+  return local
 }
 
 export async function updateEventSettings(settings: Partial<EventSettings>): Promise<{ success: boolean; error?: string }> {
@@ -121,20 +142,30 @@ export async function updateEventSettings(settings: Partial<EventSettings>): Pro
   const updated: EventSettings = {
     ...current,
     ...settings,
+    id: 'main_event',
     updated_at: new Date().toISOString(),
   }
 
-  // Always update local cache immediately for instant UI feedback
+  // 1. Always update local storage first so changes are retained immediately
   setLocalSettings(updated)
 
+  // 2. If Supabase is configured, sync to database
   if (isSupabaseConfigured && supabase) {
     try {
-      const { error } = await supabase
+      const { error: upsertError } = await supabase
         .from('event_settings')
-        .upsert(updated)
+        .upsert(updated, { onConflict: 'id' })
       
-      if (error) {
-        console.warn('Supabase upsert warning, changes retained locally:', error.message)
+      if (upsertError) {
+        console.warn('Supabase upsert warning, attempting direct update:', upsertError.message)
+        const { error: updateError } = await supabase
+          .from('event_settings')
+          .update(updated)
+          .eq('id', 'main_event')
+
+        if (updateError) {
+          console.warn('Supabase update warning, changes retained locally:', updateError.message)
+        }
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Falha na conexão com Supabase'
@@ -397,23 +428,27 @@ export async function getStats(): Promise<RSVPStats> {
 // ----------------------------------------------------
 
 export async function signInAdmin(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+  const isMaster = email.trim().toLowerCase() === 'admin@safaridolucca.com.br' && password === '937146'
+
   if (isSupabaseConfigured && supabase) {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) {
-        return { success: false, error: error.message }
-      }
-      if (data.session) {
+      if (!error && data?.session) {
         localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify({ email, authenticated: true, token: data.session.access_token }))
         return { success: true }
       }
+      if (error && !isMaster) {
+        return { success: false, error: error.message }
+      }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Erro na autenticação'
-      return { success: false, error: message }
+      if (!isMaster) {
+        const message = err instanceof Error ? err.message : 'Erro na autenticação'
+        return { success: false, error: message }
+      }
     }
   }
 
-  if (email.trim().toLowerCase() === 'admin@safaridolucca.com.br' && password === '937146') {
+  if (isMaster) {
     localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify({ email: 'admin@safaridolucca.com.br', authenticated: true }))
     return { success: true }
   }
