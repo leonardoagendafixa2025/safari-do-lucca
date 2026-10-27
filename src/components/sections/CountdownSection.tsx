@@ -86,7 +86,7 @@ export const CountdownSection: React.FC<CountdownSectionProps> = ({ settings }) 
         </div>
 
         <motion.div
-          className="safari-card"
+          className="safari-card countdown-card"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -94,7 +94,6 @@ export const CountdownSection: React.FC<CountdownSectionProps> = ({ settings }) 
           style={{
             maxWidth: '680px',
             margin: '0 auto',
-            padding: '2.75rem 2rem',
             textAlign: 'center',
             background: 'rgba(255, 253, 249, 0.94)',
             backdropFilter: 'blur(16px)',
@@ -121,16 +120,16 @@ export const CountdownSection: React.FC<CountdownSectionProps> = ({ settings }) 
             <span>Falta Pouco para a Expedição!</span>
           </div>
 
-          <h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
+          <h2 style={{ fontSize: 'clamp(1.5rem, 4.5vw, 2.4rem)', color: 'var(--color-brown-900)' }}>
             Contagem Regressiva
           </h2>
-          <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
+          <p style={{ marginTop: '0.5rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem', fontSize: 'clamp(0.85rem, 2.5vw, 1rem)' }}>
             Prepare seu espírito aventureiro para o grande dia!
           </p>
 
           {/* Monkey swinging beside timer */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-            <BabyMonkey size={120} />
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
+            <BabyMonkey size={110} />
           </div>
 
           {/* Timer Display or Event Day Message */}
@@ -175,55 +174,20 @@ export const CountdownSection: React.FC<CountdownSectionProps> = ({ settings }) 
               </p>
             </div>
           ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-                gap: '0.75rem',
-                maxWidth: '520px',
-                margin: '0 auto',
-              }}
-            >
+            <div className="countdown-grid">
               {timeUnits.map((item, idx) => (
                 <motion.div
                   key={item.label}
+                  className="countdown-box"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.1, duration: 0.5 }}
-                  style={{
-                    padding: '1.25rem 0.5rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'var(--color-cream-card)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                    boxShadow: 'var(--shadow-sm)',
-                  }}
                 >
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-heading)',
-                      fontSize: 'clamp(1.75rem, 5vw, 2.6rem)',
-                      fontWeight: 800,
-                      color: 'var(--color-brown-900)',
-                      lineHeight: 1.1,
-                    }}
-                  >
+                  <span className="countdown-number">
                     {String(item.value).padStart(2, '0')}
                   </span>
-                  <span
-                    style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                      color: 'var(--color-sage-800)',
-                      marginTop: '0.35rem',
-                    }}
-                  >
+                  <span className="countdown-label">
                     {item.label}
                   </span>
                 </motion.div>
