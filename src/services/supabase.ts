@@ -200,9 +200,10 @@ export async function submitRSVP(rsvpData: Omit<RSVP, 'id' | 'created_at'>): Pro
 
   if (isSupabaseConfigured && supabase) {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('rsvps')
         .insert({
+          id: newRsvp.id,
           guest_name: newRsvp.guest_name,
           attending: newRsvp.attending,
           companions_count: newRsvp.companions_count,
@@ -210,13 +211,15 @@ export async function submitRSVP(rsvpData: Omit<RSVP, 'id' | 'created_at'>): Pro
           notes: newRsvp.notes || null,
           phone: newRsvp.phone || null,
         })
-        .select()
-        .single()
 
       if (error) {
         return { success: false, error: error.message }
       }
-      return { success: true, rsvp: data as RSVP }
+
+      const list = getLocalRSVPs()
+      list.unshift(newRsvp)
+      setLocalRSVPs(list)
+      return { success: true, rsvp: newRsvp }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro ao registrar confirmação'
       return { success: false, error: message }
@@ -347,22 +350,26 @@ export async function submitGuestMessage(data: {
 
   if (isSupabaseConfigured && supabase) {
     try {
-      const { data: inserted, error } = await supabase
+      const { error } = await supabase
         .from('guest_messages')
         .insert({
+          id: newMessage.id,
           author_name: newMessage.author_name,
           relationship: newMessage.relationship,
           message: newMessage.message,
           status: newMessage.status,
           animal_avatar: newMessage.animal_avatar,
         })
-        .select()
-        .single()
 
       if (error) {
         return { success: false, error: error.message }
       }
-      return { success: true, message: inserted as GuestMessage }
+
+      const list = getLocalMessages()
+      list.unshift(newMessage)
+      setLocalMessages(list)
+
+      return { success: true, message: newMessage }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro ao enviar mensagem'
       return { success: false, error: message }

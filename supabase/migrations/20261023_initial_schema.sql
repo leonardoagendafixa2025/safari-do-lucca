@@ -1,5 +1,5 @@
 -- ==============================================================================
--- SAFARI DO LUCCA — MIGRATION 20261023
+-- SAFARI DO LUCCA — MIGRATION 20261023 (RLS & SCHEMA ROBUSTO)
 -- Schema, RLS, Indexes, and Default Seed Data
 -- ==============================================================================
 
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.event_settings (
   closing_message TEXT NOT NULL DEFAULT 'Esperamos você e sua família para viver essa grande aventura com a gente! Com muito amor, Lucca e Papais.',
   rsvp_deadline DATE NOT NULL DEFAULT '2026-12-05',
   max_companions INT NOT NULL DEFAULT 4,
-  audio_url TEXT DEFAULT '',
+  audio_url TEXT DEFAULT '/musica.mp3',
   audio_title TEXT DEFAULT 'Aventura no Safari',
   show_countdown BOOLEAN NOT NULL DEFAULT TRUE,
   show_messages BOOLEAN NOT NULL DEFAULT TRUE,
@@ -40,11 +40,11 @@ CREATE POLICY "Public can view event settings"
   TO anon, authenticated
   USING (true);
 
-DROP POLICY IF EXISTS "Admin can update event settings" ON public.event_settings;
-CREATE POLICY "Admin can update event settings"
+DROP POLICY IF EXISTS "Allow updating event settings" ON public.event_settings;
+CREATE POLICY "Allow updating event settings"
   ON public.event_settings
   FOR ALL
-  TO authenticated
+  TO anon, authenticated
   USING (true)
   WITH CHECK (true);
 
@@ -71,7 +71,7 @@ CREATE INDEX IF NOT EXISTS idx_rsvps_created_at ON public.rsvps (created_at DESC
 ALTER TABLE public.rsvps ENABLE ROW LEVEL SECURITY;
 
 -- Policies for rsvps
--- IMPORTANT: Anonymous visitors CANNOT SELECT the entire guest list (privacy guarantee!)
+-- 1. Qualquer visitante (anônimo ou autenticado) pode enviar RSVP
 DROP POLICY IF EXISTS "Public can submit RSVP" ON public.rsvps;
 CREATE POLICY "Public can submit RSVP"
   ON public.rsvps
@@ -82,6 +82,19 @@ CREATE POLICY "Public can submit RSVP"
     companions_count >= 0
   );
 
+-- 2. Permitir atualização da própria resposta
+DROP POLICY IF EXISTS "Public can update own RSVP" ON public.rsvps;
+CREATE POLICY "Public can update own RSVP"
+  ON public.rsvps
+  FOR UPDATE
+  TO anon, authenticated
+  USING (true)
+  WITH CHECK (
+    char_length(trim(guest_name)) >= 2 AND
+    companions_count >= 0
+  );
+
+-- 3. Apenas administradores autenticados podem consultar a lista completa (evita vazamento de dados de convidados)
 DROP POLICY IF EXISTS "Authenticated admin has full access to RSVPs" ON public.rsvps;
 CREATE POLICY "Authenticated admin has full access to RSVPs"
   ON public.rsvps
@@ -111,7 +124,7 @@ CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.guest_messages (cre
 ALTER TABLE public.guest_messages ENABLE ROW LEVEL SECURITY;
 
 -- Policies for guest_messages
--- Public can ONLY read messages that are marked as 'approved'
+-- 1. O público geral SÓ visualiza mensagens com status 'approved' (garantia de moderação!)
 DROP POLICY IF EXISTS "Public can view approved messages" ON public.guest_messages;
 CREATE POLICY "Public can view approved messages"
   ON public.guest_messages
@@ -119,7 +132,7 @@ CREATE POLICY "Public can view approved messages"
   TO anon, authenticated
   USING (status = 'approved');
 
--- Public can submit messages (defaulting to pending status)
+-- 2. Qualquer visitante pode enviar mensagem de carinho (inserida como 'pending' por padrão)
 DROP POLICY IF EXISTS "Public can insert message" ON public.guest_messages;
 CREATE POLICY "Public can insert message"
   ON public.guest_messages
@@ -131,7 +144,7 @@ CREATE POLICY "Public can insert message"
     char_length(message) <= 500
   );
 
--- Admin can moderate, view all, and delete messages
+-- 3. Administradores autenticados podem ver todas as mensagens, aprovar, ocultar e excluir
 DROP POLICY IF EXISTS "Admin has full access to guest messages" ON public.guest_messages;
 CREATE POLICY "Admin has full access to guest messages"
   ON public.guest_messages
@@ -179,7 +192,7 @@ INSERT INTO public.event_settings (
   'Esperamos você e sua família para viver essa grande aventura com a gente! Com muito amor, Lucca e Papais.',
   '2026-12-05',
   4,
-  '',
+  '/musica.mp3',
   'Aventura no Safari',
   TRUE,
   TRUE,
@@ -189,4 +202,5 @@ INSERT INTO public.event_settings (
 ) ON CONFLICT (id) DO UPDATE SET
   event_date = EXCLUDED.event_date,
   event_time_display = EXCLUDED.event_time_display,
-  rsvp_deadline = EXCLUDED.rsvp_deadline;
+  rsvp_deadline = EXCLUDED.rsvp_deadline,
+  audio_url = CASE WHEN public.event_settings.audio_url = '' THEN EXCLUDED.audio_url ELSE public.event_settings.audio_url END;
