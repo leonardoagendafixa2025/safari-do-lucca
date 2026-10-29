@@ -43,6 +43,9 @@ function getLocalSettings(): EventSettings {
       if (parsed.event_date && (parsed.event_date.includes('T00:00') || parsed.event_date.includes(' 00:00'))) {
         parsed.event_date = parsed.event_date.replace(/([T\s])00:00/, '$116:00')
       }
+      if (!parsed.audio_url || parsed.audio_url.trim() === '') {
+        parsed.audio_url = '/musica.mp3'
+      }
       return { ...DEFAULT_EVENT_SETTINGS, ...parsed }
     }
   } catch (e) {
@@ -128,6 +131,9 @@ export async function getEventSettings(): Promise<EventSettings> {
         const merged: EventSettings = {
           ...DEFAULT_EVENT_SETTINGS,
           ...data,
+        }
+        if (!merged.audio_url || merged.audio_url.trim() === '') {
+          merged.audio_url = '/musica.mp3'
         }
         setLocalSettings(merged)
         return merged

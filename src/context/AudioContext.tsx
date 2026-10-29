@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react'
 
+const DEFAULT_AUDIO = '/musica.mp3'
+
 interface AudioContextType {
   isPlaying: boolean
   hasStarted: boolean
@@ -18,39 +20,48 @@ const AudioContext = createContext<AudioContextType | null>(null)
 
 export const AudioProvider: React.FC<{ children: React.ReactNode; initialAudioUrl?: string }> = ({
   children,
-  initialAudioUrl = '',
+  initialAudioUrl = DEFAULT_AUDIO,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
   const [volume, setVolumeState] = useState(0.7)
   const [isMuted, setIsMuted] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [audioUrl, setAudioUrlState] = useState<string | null>(initialAudioUrl || null)
+  const [audioUrl, setAudioUrlState] = useState<string>(() => initialAudioUrl || DEFAULT_AUDIO)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   // Sync initialAudioUrl if prop changes
   useEffect(() => {
-    if (initialAudioUrl) {
+    if (initialAudioUrl && initialAudioUrl.trim() !== '') {
       setAudioUrlState(initialAudioUrl)
+    } else {
+      setAudioUrlState(DEFAULT_AUDIO)
     }
   }, [initialAudioUrl])
 
   // Initialize and handle Audio instance
   useEffect(() => {
-    if (!audioUrl) return
+    const activeUrl = audioUrl || DEFAULT_AUDIO
 
     if (!audioRef.current) {
-      audioRef.current = new Audio(audioUrl)
+      audioRef.current = new Audio(activeUrl)
       audioRef.current.loop = true
       audioRef.current.volume = isMuted ? 0 : volume
     } else {
-      audioRef.current.src = audioUrl
+      if (!audioRef.current.src.endsWith(activeUrl)) {
+        audioRef.current.src = activeUrl
+        audioRef.current.loop = true
+      }
     }
 
     const audio = audioRef.current
 
-    const handleEnded = () => setIsPlaying(false)
+    const handleEnded = () => {
+      // Loop backup in case browser loop attribute glitches
+      audio.currentTime = 0
+      audio.play().catch(() => setIsPlaying(false))
+    }
     const handlePause = () => setIsPlaying(false)
     const handlePlay = () => {
       setIsPlaying(true)
@@ -72,7 +83,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode; initialAudioUr
       audio.removeEventListener('play', handlePlay)
       audio.removeEventListener('error', handleError)
     }
-  }, [audioUrl])
+  }, [audioUrl, isMuted, volume])
 
   // Volume & Mute listener
   useEffect(() => {
@@ -83,15 +94,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode; initialAudioUr
 
   const startAudio = useCallback(async (): Promise<boolean> => {
     setHasStarted(true)
-    if (!audioUrl) {
-      // Audio not configured yet
-      return false
-    }
+    const activeUrl = audioUrl || DEFAULT_AUDIO
 
     if (!audioRef.current) {
-      audioRef.current = new Audio(audioUrl)
+      audioRef.current = new Audio(activeUrl)
       audioRef.current.loop = true
       audioRef.current.volume = isMuted ? 0 : volume
+    } else if (!audioRef.current.src || audioRef.current.src === window.location.href) {
+      audioRef.current.src = activeUrl
+      audioRef.current.loop = true
     }
 
     try {
@@ -108,14 +119,16 @@ export const AudioProvider: React.FC<{ children: React.ReactNode; initialAudioUr
   }, [audioUrl, isMuted, volume])
 
   const togglePlay = useCallback(() => {
-    if (!audioUrl) {
-      setError('Música ainda não configurada no Painel do Evento.')
-      return
-    }
+    const activeUrl = audioUrl || DEFAULT_AUDIO
 
     if (!audioRef.current) {
       startAudio()
       return
+    }
+
+    if (!audioRef.current.src || audioRef.current.src === window.location.href) {
+      audioRef.current.src = activeUrl
+      audioRef.current.loop = true
     }
 
     if (isPlaying) {
@@ -127,7 +140,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode; initialAudioUr
         setError(null)
       }).catch(err => {
         console.warn('Play failed', err)
-        setError('Erro ao reproduzir o áudio.')
+        setError('Toque no ícone de som para permitir a reprodução.')
       })
     }
   }, [audioUrl, isPlaying, startAudio])
@@ -145,7 +158,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode; initialAudioUr
   }, [])
 
   const setAudioUrl = useCallback((url: string) => {
-    setAudioUrlState(url)
+    setAudioUrlState(url || DEFAULT_AUDIO)
     setError(null)
   }, [])
 

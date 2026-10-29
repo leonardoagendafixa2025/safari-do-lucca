@@ -15,7 +15,7 @@ export const DEFAULT_EVENT_SETTINGS: EventSettings = {
   closing_message: 'Esperamos você e sua família para viver essa grande aventura com a gente! Com muito amor, Lucca e Papais.',
   rsvp_deadline: '2026-12-05',
   max_companions: 4,
-  audio_url: '', // MP3 URL configured by administrator or provided in public/audio
+  audio_url: '/musica.mp3', // Faixa de áudio do Safari do Lucca
   audio_title: 'Aventura no Safari',
   show_countdown: true,
   show_messages: true,
