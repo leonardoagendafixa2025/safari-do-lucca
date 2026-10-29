@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import '@testing-library/jest-dom/vitest'
-import App from '../App'
+import { App } from '../App'
 
 describe('App Component', () => {
   beforeEach(() => {
@@ -13,8 +12,8 @@ describe('App Component', () => {
     render(<App />)
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1, name: /Lucca/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /Começar a Aventura/i })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 1, name: /LUCCA/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Entrar no Safari/i })).toBeInTheDocument()
     })
   })
 
@@ -23,6 +22,7 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /Contagem Regressiva/i })).toBeInTheDocument()
+      expect(screen.getByText(/Dias/i)).toBeInTheDocument()
     })
   })
 
@@ -30,14 +30,15 @@ describe('App Component', () => {
     render(<App />)
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText(/Ex: Ana Maria Silva/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/Seu Nome Completo \*/i)).toBeInTheDocument()
     })
 
-    const nameInput = screen.getByPlaceholderText(/Ex: Ana Maria Silva/i)
-    fireEvent.change(nameInput, { target: { value: 'Maria Silva' } })
+    const nameInput = screen.getByLabelText(/Seu Nome Completo \*/i)
+    fireEvent.change(nameInput, { target: { value: 'Tia Joana' } })
+    expect(nameInput).toHaveValue('Tia Joana')
 
-    const confirmButton = screen.getByRole('button', { name: /Confirmar Presença/i })
-    expect(confirmButton).toBeInTheDocument()
+    const confirmBtn = screen.getByRole('button', { name: /Confirmar Presença/i })
+    expect(confirmBtn).toBeInTheDocument()
   })
 
   it('switches to admin login when #admin hash is set', async () => {
@@ -55,7 +56,9 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: /Data & Horário/i })).toBeInTheDocument()
-      expect(screen.getByText(/Início às 16:00h/i)).toBeInTheDocument()
+      expect(screen.getByText(/15:00/i)).toBeInTheDocument()
+      expect(screen.getByText(/Domingo/i)).toBeInTheDocument()
+      expect(screen.getByText(/13 de dezembro de 2026/i)).toBeInTheDocument()
     })
   })
 })

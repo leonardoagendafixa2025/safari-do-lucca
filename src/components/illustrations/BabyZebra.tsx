@@ -30,9 +30,9 @@ export const BabyZebra: React.FC<BabyZebraProps> = ({ className = '', size = 180
 
       {/* Tail with brush */}
       <motion.g
+        style={{ transformOrigin: '140px 145px' }}
         animate={animate ? { rotate: [-10, 15, -10] } : false}
         transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
-        style={{ transformOrigin: '140px 145px' }}
       >
         <path d="M 135 145 C 155 142, 165 125, 160 110" stroke="#EDE8DE" strokeWidth="5" strokeLinecap="round" fill="none" />
         <path d="M 160 110 C 163 105, 168 112, 162 118" stroke="#382F2D" strokeWidth="6" strokeLinecap="round" fill="none" />
@@ -54,7 +54,7 @@ export const BabyZebra: React.FC<BabyZebraProps> = ({ className = '', size = 180
         <rect x="112" y="176" width="14" height="8" rx="4" fill="#3D322E" />
       </g>
 
-      {/* Mane crest (Mohawk style on head/neck) */}
+      {/* Mane crest */}
       <g id="zebra-mane">
         {[76, 84, 92, 100, 108, 116, 124].map((x, i) => (
           <path
@@ -69,18 +69,18 @@ export const BabyZebra: React.FC<BabyZebraProps> = ({ className = '', size = 180
 
       {/* Ears */}
       <motion.g
+        style={{ transformOrigin: '70px 55px' }}
         animate={animate ? { rotate: [-5, 5, -5] } : false}
         transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-        style={{ transformOrigin: '70px 55px' }}
       >
         <ellipse cx="70" cy="55" rx="14" ry="7" fill="#EDE8DE" transform="rotate(-35 70 55)" />
         <ellipse cx="70" cy="55" rx="9" ry="4" fill="#F7A399" transform="rotate(-35 70 55)" />
       </motion.g>
 
       <motion.g
+        style={{ transformOrigin: '130px 55px' }}
         animate={animate ? { rotate: [5, -5, 5] } : false}
         transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-        style={{ transformOrigin: '130px 55px' }}
       >
         <ellipse cx="130" cy="55" rx="14" ry="7" fill="#EDE8DE" transform="rotate(35 130 55)" />
         <ellipse cx="130" cy="55" rx="9" ry="4" fill="#F7A399" transform="rotate(35 130 55)" />
@@ -106,9 +106,9 @@ export const BabyZebra: React.FC<BabyZebraProps> = ({ className = '', size = 180
 
       {/* Eyes with blink */}
       <motion.g
+        style={{ transformOrigin: '100px 80px' }}
         animate={animate ? { scaleY: [1, 1, 0.1, 1, 1] } : false}
         transition={{ repeat: Infinity, duration: 4.8, times: [0, 0.9, 0.93, 0.96, 1] }}
-        style={{ transformOrigin: '100px 80px' }}
       >
         <circle cx="82" cy="80" r="6" fill="#2E2320" />
         <circle cx="80" cy="78" r="2" fill="#FFFFFF" />

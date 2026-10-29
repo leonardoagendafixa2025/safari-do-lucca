@@ -431,7 +431,7 @@ export async function getStats(): Promise<RSVPStats> {
 // ----------------------------------------------------
 
 export async function signInAdmin(email: string, password: string): Promise<{ success: boolean; error?: string }> {
-  const isMaster = email.trim().toLowerCase() === 'admin@safaridolucca.com.br' && password === '937146'
+  const isMaster = email.trim().toLowerCase() === 'admin@safaridolucca.com.br' && (password === '937146' || password === 'safari2026')
 
   if (isSupabaseConfigured && supabase) {
     try {

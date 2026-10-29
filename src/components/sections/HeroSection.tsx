@@ -302,7 +302,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               }
             >
               <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>◉</span>
-              <span>COMEÇAR A AVENTURA</span>
+              <span>ENTRAR NO SAFARI</span>
             </motion.button>
           </motion.div>
 

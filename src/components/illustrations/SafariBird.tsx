@@ -39,7 +39,6 @@ export const SafariBird: React.FC<SafariBirdProps> = ({
 
       {/* Body */}
       <ellipse cx="50" cy="45" rx="24" ry="18" fill="url(#birdGrad)" />
-      {/* Tummy */}
       <ellipse cx="56" cy="48" rx="14" ry="12" fill="#FFF7E6" opacity="0.85" />
 
       {/* Head */}
@@ -57,9 +56,9 @@ export const SafariBird: React.FC<SafariBirdProps> = ({
 
       {/* Wing with flapping animation */}
       <motion.g
+        style={{ transformOrigin: '42px 42px' }}
         animate={animate ? { rotate: [-15, 15, -15] } : false}
         transition={{ repeat: Infinity, duration: 0.6, ease: 'easeInOut' }}
-        style={{ transformOrigin: '42px 42px' }}
       >
         <path
           d="M 42 42 C 30 35, 32 55, 48 48 C 52 46, 50 40, 42 42 Z"

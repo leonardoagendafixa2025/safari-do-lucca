@@ -43,9 +43,9 @@ export const BabyMonkey: React.FC<BabyMonkeyProps> = ({ className = '', size = 1
 
       {/* Swinging monkey group */}
       <motion.g
+        style={{ transformOrigin: '100px 80px' }}
         animate={animate ? { rotate: [-8, 8, -8] } : false}
         transition={{ repeat: Infinity, duration: 3.2, ease: 'easeInOut' }}
-        style={{ transformOrigin: '100px 80px' }}
       >
         {/* Arm holding vine */}
         <path
@@ -58,6 +58,7 @@ export const BabyMonkey: React.FC<BabyMonkeyProps> = ({ className = '', size = 1
 
         {/* Tail (curling) */}
         <motion.path
+          style={{ transformOrigin: '125px 155px' }}
           d="M 125 155 C 150 160, 165 140, 150 120 C 140 108, 125 118, 134 128"
           stroke="#7A4F32"
           strokeWidth="7"
@@ -65,12 +66,10 @@ export const BabyMonkey: React.FC<BabyMonkeyProps> = ({ className = '', size = 1
           fill="none"
           animate={animate ? { rotate: [-5, 6, -5] } : false}
           transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
-          style={{ transformOrigin: '125px 155px' }}
         />
 
         {/* Body */}
         <ellipse cx="100" cy="145" rx="32" ry="26" fill="url(#monkeyFur)" />
-        {/* Tummy */}
         <ellipse cx="100" cy="147" rx="20" ry="17" fill="url(#monkeyFace)" />
 
         {/* Feet */}
@@ -98,9 +97,9 @@ export const BabyMonkey: React.FC<BabyMonkeyProps> = ({ className = '', size = 1
 
         {/* Eyes */}
         <motion.g
+          style={{ transformOrigin: '100px 102px' }}
           animate={animate ? { scaleY: [1, 1, 0.1, 1, 1] } : false}
           transition={{ repeat: Infinity, duration: 4.6, times: [0, 0.9, 0.93, 0.96, 1] }}
-          style={{ transformOrigin: '100px 102px' }}
         >
           <circle cx="88" cy="102" r="5" fill="#362215" />
           <circle cx="86.5" cy="100.5" r="1.8" fill="#FFFFFF" />
