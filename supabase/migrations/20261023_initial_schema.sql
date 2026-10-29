@@ -1,9 +1,9 @@
 -- ==============================================================================
--- SAFARI DO LUCCA — MIGRATION 20261023 (RLS & SCHEMA ROBUSTO)
--- Schema, RLS, Indexes, and Default Seed Data
+-- SAFARI DO LUCCA — MIGRATION COMPLETA (SCHEMA, RLS E PERMISSÕES)
+-- Execute no SQL Editor do Supabase: https://supabase.com/dashboard/project/gzkysascdwhnzepexcgm/sql/new
 -- ==============================================================================
 
--- 1. EVENT SETTINGS TABLE
+-- 1. TABELA DE CONFIGURAÇÕES DO EVENTO
 CREATE TABLE IF NOT EXISTS public.event_settings (
   id TEXT PRIMARY KEY DEFAULT 'main_event',
   child_name TEXT NOT NULL DEFAULT 'Lucca',
@@ -29,10 +29,14 @@ CREATE TABLE IF NOT EXISTS public.event_settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Enable RLS
+-- Ativa RLS
 ALTER TABLE public.event_settings ENABLE ROW LEVEL SECURITY;
 
--- Policies for event_settings
+-- Permissões de schema e tabelas
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON TABLE public.event_settings TO anon, authenticated;
+
+-- Políticas de RLS para event_settings
 DROP POLICY IF EXISTS "Public can view event settings" ON public.event_settings;
 CREATE POLICY "Public can view event settings"
   ON public.event_settings
@@ -49,7 +53,7 @@ CREATE POLICY "Allow updating event settings"
   WITH CHECK (true);
 
 
--- 2. RSVPS (GUEST CONFIRMATION) TABLE
+-- 2. TABELA DE CONFIRMAÇÕES DE PRESENÇA (RSVPS)
 CREATE TABLE IF NOT EXISTS public.rsvps (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   guest_name TEXT NOT NULL,
@@ -62,16 +66,17 @@ CREATE TABLE IF NOT EXISTS public.rsvps (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Indexes for performance & search
+-- Índices de busca rápida
 CREATE INDEX IF NOT EXISTS idx_rsvps_guest_name ON public.rsvps (guest_name);
 CREATE INDEX IF NOT EXISTS idx_rsvps_attending ON public.rsvps (attending);
 CREATE INDEX IF NOT EXISTS idx_rsvps_created_at ON public.rsvps (created_at DESC);
 
--- Enable RLS
+-- Ativa RLS e concessões
 ALTER TABLE public.rsvps ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE public.rsvps TO anon, authenticated;
 
--- Policies for rsvps
--- 1. Qualquer visitante (anônimo ou autenticado) pode enviar RSVP
+-- Políticas de RLS para rsvps
+-- 1. Qualquer visitante pode confirmar presença
 DROP POLICY IF EXISTS "Public can submit RSVP" ON public.rsvps;
 CREATE POLICY "Public can submit RSVP"
   ON public.rsvps
@@ -82,7 +87,7 @@ CREATE POLICY "Public can submit RSVP"
     companions_count >= 0
   );
 
--- 2. Permitir atualização da própria resposta
+-- 2. Convidado pode atualizar sua própria resposta
 DROP POLICY IF EXISTS "Public can update own RSVP" ON public.rsvps;
 CREATE POLICY "Public can update own RSVP"
   ON public.rsvps
@@ -94,7 +99,7 @@ CREATE POLICY "Public can update own RSVP"
     companions_count >= 0
   );
 
--- 3. Apenas administradores autenticados podem consultar a lista completa (evita vazamento de dados de convidados)
+-- 3. Apenas administradores autenticados podem consultar a lista inteira (privacidade protegida)
 DROP POLICY IF EXISTS "Authenticated admin has full access to RSVPs" ON public.rsvps;
 CREATE POLICY "Authenticated admin has full access to RSVPs"
   ON public.rsvps
@@ -104,7 +109,7 @@ CREATE POLICY "Authenticated admin has full access to RSVPs"
   WITH CHECK (true);
 
 
--- 3. GUEST MESSAGES TABLE
+-- 3. TABELA DO MURAL DE MENSAGENS (GUEST_MESSAGES)
 CREATE TABLE IF NOT EXISTS public.guest_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   author_name TEXT NOT NULL,
@@ -116,15 +121,16 @@ CREATE TABLE IF NOT EXISTS public.guest_messages (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Indexes
+-- Índices
 CREATE INDEX IF NOT EXISTS idx_messages_status ON public.guest_messages (status);
 CREATE INDEX IF NOT EXISTS idx_messages_created_at ON public.guest_messages (created_at DESC);
 
--- Enable RLS
+-- Ativa RLS e concessões
 ALTER TABLE public.guest_messages ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE public.guest_messages TO anon, authenticated;
 
--- Policies for guest_messages
--- 1. O público geral SÓ visualiza mensagens com status 'approved' (garantia de moderação!)
+-- Políticas de RLS para guest_messages
+-- 1. Público só visualiza mensagens já APROVADAS
 DROP POLICY IF EXISTS "Public can view approved messages" ON public.guest_messages;
 CREATE POLICY "Public can view approved messages"
   ON public.guest_messages
@@ -132,7 +138,7 @@ CREATE POLICY "Public can view approved messages"
   TO anon, authenticated
   USING (status = 'approved');
 
--- 2. Qualquer visitante pode enviar mensagem de carinho (inserida como 'pending' por padrão)
+-- 2. Qualquer visitante pode enviar mensagem de carinho (fica pendente para moderação)
 DROP POLICY IF EXISTS "Public can insert message" ON public.guest_messages;
 CREATE POLICY "Public can insert message"
   ON public.guest_messages
@@ -144,7 +150,7 @@ CREATE POLICY "Public can insert message"
     char_length(message) <= 500
   );
 
--- 3. Administradores autenticados podem ver todas as mensagens, aprovar, ocultar e excluir
+-- 3. Administrador autenticado pode aprovar, ocultar, listar pendentes e excluir
 DROP POLICY IF EXISTS "Admin has full access to guest messages" ON public.guest_messages;
 CREATE POLICY "Admin has full access to guest messages"
   ON public.guest_messages
@@ -154,7 +160,7 @@ CREATE POLICY "Admin has full access to guest messages"
   WITH CHECK (true);
 
 
--- 4. INSERT INITIAL DEFAULT SETTINGS (IDEMPOTENT)
+-- 4. INSERIR REGISTRO INICIAL PADRÃO (IDEMPOTENTE)
 INSERT INTO public.event_settings (
   id,
   child_name,
