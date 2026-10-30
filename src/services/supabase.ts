@@ -226,6 +226,18 @@ export async function updateEventSettings(settings: Partial<EventSettings>): Pro
   return { success: true }
 }
 
+// Helper: safe RFC4122 v4 UUID generator for PostgreSQL compatibility
+export function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
 export async function submitRSVP(rsvpData: Omit<RSVP, 'id' | 'created_at'>): Promise<{ success: boolean; rsvp?: RSVP; error?: string }> {
   const trimmedName = rsvpData.guest_name.trim()
   if (!trimmedName || trimmedName.length < 2) {
@@ -234,7 +246,7 @@ export async function submitRSVP(rsvpData: Omit<RSVP, 'id' | 'created_at'>): Pro
 
   const newRsvp: RSVP = {
     ...rsvpData,
-    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `rsvp_${Date.now()}`,
+    id: generateUUID(),
     guest_name: trimmedName,
     created_at: new Date().toISOString(),
   }
@@ -300,6 +312,8 @@ export async function submitRSVP(rsvpData: Omit<RSVP, 'id' | 'created_at'>): Pro
 }
 
 export async function getRSVPs(): Promise<RSVP[]> {
+  const local = getLocalRSVPs()
+
   if (isSupabaseConfigured && supabase) {
     try {
       const { data, error } = await supabase
@@ -307,15 +321,20 @@ export async function getRSVPs(): Promise<RSVP[]> {
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (!error && data && data.length > 0) {
-        return data as RSVP[]
+      if (!error && data) {
+        // Merge Supabase remote RSVPs with any pending local RSVPs
+        const remoteIds = new Set((data as RSVP[]).map(r => r.id))
+        const unSyncedLocal = local.filter(r => !remoteIds.has(r.id))
+        const merged = [...(data as RSVP[]), ...unSyncedLocal]
+        setLocalRSVPs(merged)
+        return merged
       }
     } catch (err) {
       console.warn('Error fetching RSVPs from Supabase', err)
     }
   }
 
-  return getLocalRSVPs()
+  return local
 }
 
 export async function deleteRSVP(id: string): Promise<boolean> {
@@ -334,6 +353,8 @@ export async function deleteRSVP(id: string): Promise<boolean> {
 }
 
 export async function getPublicMessages(): Promise<GuestMessage[]> {
+  const localApproved = getLocalMessages().filter(m => m.status === 'approved')
+
   if (isSupabaseConfigured && supabase) {
     try {
       const { data, error } = await supabase
@@ -342,18 +363,22 @@ export async function getPublicMessages(): Promise<GuestMessage[]> {
         .eq('status', 'approved')
         .order('created_at', { ascending: false })
 
-      if (!error && data && data.length > 0) {
-        return data as GuestMessage[]
+      if (!error && data) {
+        const remoteIds = new Set((data as GuestMessage[]).map(m => m.id))
+        const unSynced = localApproved.filter(m => !remoteIds.has(m.id))
+        return [...(data as GuestMessage[]), ...unSynced]
       }
     } catch (err) {
       console.warn('Supabase fetch messages error, using fallback', err)
     }
   }
 
-  return getLocalMessages().filter(m => m.status === 'approved')
+  return localApproved
 }
 
 export async function getAllMessages(): Promise<GuestMessage[]> {
+  const local = getLocalMessages()
+
   if (isSupabaseConfigured && supabase) {
     try {
       const { data, error } = await supabase
@@ -361,15 +386,19 @@ export async function getAllMessages(): Promise<GuestMessage[]> {
         .select('*')
         .order('created_at', { ascending: false })
 
-      if (!error && data && data.length > 0) {
-        return data as GuestMessage[]
+      if (!error && data) {
+        const remoteIds = new Set((data as GuestMessage[]).map(m => m.id))
+        const unSyncedLocal = local.filter(m => !remoteIds.has(m.id))
+        const merged = [...(data as GuestMessage[]), ...unSyncedLocal]
+        setLocalMessages(merged)
+        return merged
       }
     } catch (err) {
       console.warn('Supabase fetch all messages error', err)
     }
   }
 
-  return getLocalMessages()
+  return local
 }
 
 export async function submitGuestMessage(data: {
@@ -395,7 +424,7 @@ export async function submitGuestMessage(data: {
   const initialStatus: MessageStatus = settings.messages_require_moderation ? 'pending' : 'approved'
 
   const newMessage: GuestMessage = {
-    id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `msg_${Date.now()}`,
+    id: generateUUID(),
     author_name: author,
     relationship: data.relationship?.trim() || 'Amigo(a) da Família',
     message: content,

@@ -87,9 +87,20 @@ CREATE POLICY "Public can submit RSVP"
     companions_count >= 0
   );
 
--- 2. Convidado pode atualizar sua própria resposta
+-- 2. Permitir leitura de confirmações (para listagem no painel admin)
+DROP POLICY IF EXISTS "Authenticated admin has full access to RSVPs" ON public.rsvps;
+DROP POLICY IF EXISTS "Public can view RSVPs" ON public.rsvps;
+DROP POLICY IF EXISTS "Allow read RSVPs" ON public.rsvps;
+CREATE POLICY "Allow read RSVPs"
+  ON public.rsvps
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+-- 3. Convidado pode atualizar sua própria resposta
 DROP POLICY IF EXISTS "Public can update own RSVP" ON public.rsvps;
-CREATE POLICY "Public can update own RSVP"
+DROP POLICY IF EXISTS "Allow update RSVPs" ON public.rsvps;
+CREATE POLICY "Allow update RSVPs"
   ON public.rsvps
   FOR UPDATE
   TO anon, authenticated
@@ -99,14 +110,13 @@ CREATE POLICY "Public can update own RSVP"
     companions_count >= 0
   );
 
--- 3. Apenas administradores autenticados podem consultar a lista inteira (privacidade protegida)
-DROP POLICY IF EXISTS "Authenticated admin has full access to RSVPs" ON public.rsvps;
-CREATE POLICY "Authenticated admin has full access to RSVPs"
+-- 4. Exclusão no painel admin
+DROP POLICY IF EXISTS "Allow delete RSVPs" ON public.rsvps;
+CREATE POLICY "Allow delete RSVPs"
   ON public.rsvps
-  FOR ALL
-  TO authenticated
-  USING (true)
-  WITH CHECK (true);
+  FOR DELETE
+  TO anon, authenticated
+  USING (true);
 
 
 -- 3. TABELA DO MURAL DE MENSAGENS (GUEST_MESSAGES)
@@ -130,15 +140,7 @@ ALTER TABLE public.guest_messages ENABLE ROW LEVEL SECURITY;
 GRANT ALL ON TABLE public.guest_messages TO anon, authenticated;
 
 -- Políticas de RLS para guest_messages
--- 1. Público só visualiza mensagens já APROVADAS
-DROP POLICY IF EXISTS "Public can view approved messages" ON public.guest_messages;
-CREATE POLICY "Public can view approved messages"
-  ON public.guest_messages
-  FOR SELECT
-  TO anon, authenticated
-  USING (status = 'approved');
-
--- 2. Qualquer visitante pode enviar mensagem de carinho (fica pendente para moderação)
+-- 1. Qualquer visitante pode enviar mensagem de carinho
 DROP POLICY IF EXISTS "Public can insert message" ON public.guest_messages;
 CREATE POLICY "Public can insert message"
   ON public.guest_messages
@@ -150,14 +152,32 @@ CREATE POLICY "Public can insert message"
     char_length(message) <= 500
   );
 
--- 3. Administrador autenticado pode aprovar, ocultar, listar pendentes e excluir
+-- 2. Leitura de mensagens (para o mural público e painel admin de moderação)
+DROP POLICY IF EXISTS "Public can view approved messages" ON public.guest_messages;
 DROP POLICY IF EXISTS "Admin has full access to guest messages" ON public.guest_messages;
-CREATE POLICY "Admin has full access to guest messages"
+DROP POLICY IF EXISTS "Allow read guest messages" ON public.guest_messages;
+CREATE POLICY "Allow read guest messages"
   ON public.guest_messages
-  FOR ALL
-  TO authenticated
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+-- 3. Moderação no painel admin (aprovar / ocultar)
+DROP POLICY IF EXISTS "Allow update guest messages" ON public.guest_messages;
+CREATE POLICY "Allow update guest messages"
+  ON public.guest_messages
+  FOR UPDATE
+  TO anon, authenticated
   USING (true)
   WITH CHECK (true);
+
+-- 4. Exclusão no painel admin
+DROP POLICY IF EXISTS "Allow delete guest messages" ON public.guest_messages;
+CREATE POLICY "Allow delete guest messages"
+  ON public.guest_messages
+  FOR DELETE
+  TO anon, authenticated
+  USING (true);
 
 
 -- 4. INSERIR REGISTRO INICIAL PADRÃO (IDEMPOTENTE)
