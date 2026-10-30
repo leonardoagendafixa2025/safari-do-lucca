@@ -444,6 +444,7 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
               type="text"
               value={formData.venue_name}
               onChange={(e) => handleChange('venue_name', e.target.value)}
+              placeholder="Ex: Salão de Festas"
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}
             />
           </div>
@@ -455,7 +456,17 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
             <input
               type="text"
               value={formData.venue_address}
-              onChange={(e) => handleChange('venue_address', e.target.value)}
+              onChange={(e) => {
+                const newAddress = e.target.value
+                setFormData(prev => ({
+                  ...prev,
+                  venue_address: newAddress,
+                  maps_url: (!prev.maps_url || prev.maps_url.includes('maps.google.com') || prev.maps_url.includes('Palmeiras'))
+                    ? `https://maps.google.com/?q=${encodeURIComponent(newAddress)}`
+                    : prev.maps_url,
+                }))
+              }}
+              placeholder="Rua Rubens Caporali Ribeiro, 533 - Buritis - Belo Horizonte"
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}
             />
           </div>
@@ -468,9 +479,22 @@ export const AdminEventSettings: React.FC<AdminEventSettingsProps> = ({ settings
               type="url"
               value={formData.maps_url}
               onChange={(e) => handleChange('maps_url', e.target.value)}
+              placeholder="https://maps.google.com/?q=..."
               style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', background: 'var(--color-cream-bg)' }}
             />
           </div>
+        </div>
+
+        {/* Action Button dedicated for Location & Address */}
+        <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+          <button
+            type="submit"
+            disabled={saving}
+            className="btn-primary"
+            style={{ padding: '0.6rem 1.4rem', fontSize: '0.875rem' }}
+          >
+            {saving ? 'Salvando...' : 'Salvar Local & Endereço'}
+          </button>
         </div>
       </div>
 

@@ -2,9 +2,9 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { EventSettings, RSVP, GuestMessage, RSVPStats, MessageStatus, AnimalType } from '../types'
 import { DEFAULT_EVENT_SETTINGS } from '../config/defaults'
 
-// Environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+// Environment variables with production fallbacks to ensure cloud connectivity
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://gzkysascdwhnzepexcgm.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_42M4YqRTxXBX4lBsSrq2ug_k4QLSwbV'
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl && 
@@ -31,17 +31,27 @@ function getLocalSettings(): EventSettings {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (parsed.venue_name === 'Espaço Safari Encantado') {
+      if (parsed.venue_name === 'Espaço Safari Encantado' || !parsed.venue_name) {
         parsed.venue_name = DEFAULT_EVENT_SETTINGS.venue_name
+      }
+      if (parsed.venue_address?.includes('Palmeiras') || !parsed.venue_address) {
+        parsed.venue_address = DEFAULT_EVENT_SETTINGS.venue_address
+        parsed.maps_url = DEFAULT_EVENT_SETTINGS.maps_url
+      }
+      if (parsed.maps_url?.includes('Palmeiras') || !parsed.maps_url) {
+        parsed.maps_url = DEFAULT_EVENT_SETTINGS.maps_url
       }
       if (parsed.event_time_display === 'Início às 14:00h' || parsed.event_time_display === 'Início às 00:00h' || parsed.event_time_display === '00:00' || !parsed.event_time_display) {
         parsed.event_time_display = DEFAULT_EVENT_SETTINGS.event_time_display
       }
-      if (parsed.event_date && parsed.event_date.includes('T14:00')) {
-        parsed.event_date = parsed.event_date.replace('T14:00', 'T16:00')
-      }
-      if (parsed.event_date && (parsed.event_date.includes('T00:00') || parsed.event_date.includes(' 00:00'))) {
-        parsed.event_date = parsed.event_date.replace(/([T\s])00:00/, '$116:00')
+      if (parsed.event_date) {
+        parsed.event_date = parsed.event_date.replace(/(\+00:00|Z|\.000Z)$/, '')
+        if (parsed.event_date.includes('T14:00')) {
+          parsed.event_date = parsed.event_date.replace('T14:00', 'T15:00')
+        }
+        if (parsed.event_date.includes('T00:00') || parsed.event_date.includes(' 00:00')) {
+          parsed.event_date = parsed.event_date.replace(/([T\s])00:00/, '$115:00')
+        }
       }
       if (!parsed.audio_url || parsed.audio_url.trim() === '') {
         parsed.audio_url = '/musica.mp3'
@@ -117,6 +127,21 @@ export async function getEventSettings(): Promise<EventSettings> {
         .maybeSingle()
 
       if (!error && data) {
+        // Sanitize date & address from Supabase
+        const cleanEventDate = data.event_date ? data.event_date.replace(/(\+00:00|Z|\.000Z)$/, '') : DEFAULT_EVENT_SETTINGS.event_date
+        const cleanAddress = (data.venue_address?.includes('Palmeiras') || !data.venue_address) ? DEFAULT_EVENT_SETTINGS.venue_address : data.venue_address
+        const cleanMapsUrl = (data.maps_url?.includes('Palmeiras') || !data.maps_url) ? DEFAULT_EVENT_SETTINGS.maps_url : data.maps_url
+        const cleanVenueName = (data.venue_name === 'Espaço Safari Encantado' || !data.venue_name) ? DEFAULT_EVENT_SETTINGS.venue_name : data.venue_name
+
+        const sanitizedRemote: EventSettings = {
+          ...DEFAULT_EVENT_SETTINGS,
+          ...data,
+          event_date: cleanEventDate,
+          venue_name: cleanVenueName,
+          venue_address: cleanAddress,
+          maps_url: cleanMapsUrl,
+        }
+
         // Compare timestamps: if local storage has a newer update than remote (e.g. Supabase had write permission issue),
         // prioritize local changes so admin edits are NEVER lost on page reload!
         const localTime = local.updated_at ? new Date(local.updated_at).getTime() : 0
@@ -124,19 +149,15 @@ export async function getEventSettings(): Promise<EventSettings> {
 
         if (localTime > remoteTime) {
           // Attempt background sync to Supabase
-          Promise.resolve(supabase.from('event_settings').upsert({ ...data, ...local }, { onConflict: 'id' })).catch(() => {})
-          return { ...DEFAULT_EVENT_SETTINGS, ...data, ...local }
+          Promise.resolve(supabase.from('event_settings').upsert({ ...sanitizedRemote, ...local }, { onConflict: 'id' })).catch(() => {})
+          return { ...DEFAULT_EVENT_SETTINGS, ...sanitizedRemote, ...local }
         }
 
-        const merged: EventSettings = {
-          ...DEFAULT_EVENT_SETTINGS,
-          ...data,
+        if (!sanitizedRemote.audio_url || sanitizedRemote.audio_url.trim() === '') {
+          sanitizedRemote.audio_url = '/musica.mp3'
         }
-        if (!merged.audio_url || merged.audio_url.trim() === '') {
-          merged.audio_url = '/musica.mp3'
-        }
-        setLocalSettings(merged)
-        return merged
+        setLocalSettings(sanitizedRemote)
+        return sanitizedRemote
       }
     } catch (err) {
       console.warn('Supabase fetch failed, falling back to local storage', err)
@@ -148,9 +169,18 @@ export async function getEventSettings(): Promise<EventSettings> {
 
 export async function updateEventSettings(settings: Partial<EventSettings>): Promise<{ success: boolean; error?: string }> {
   const current = await getEventSettings()
+
+  // If venue address changed but maps_url was not explicitly supplied or was default google maps url,
+  // automatically synchronize maps_url to the new venue address
+  let mapsUrl = settings.maps_url ?? current.maps_url
+  if (settings.venue_address && (!settings.maps_url || settings.maps_url.includes('maps.google.com') || settings.maps_url.includes('Palmeiras'))) {
+    mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(settings.venue_address)}`
+  }
+
   const updated: EventSettings = {
     ...current,
     ...settings,
+    maps_url: mapsUrl,
     id: 'main_event',
     updated_at: new Date().toISOString(),
   }
@@ -161,24 +191,31 @@ export async function updateEventSettings(settings: Partial<EventSettings>): Pro
   // 2. If Supabase is configured, sync to database
   if (isSupabaseConfigured && supabase) {
     try {
+      const dbPayload = { ...updated }
+      if (dbPayload.audio_url && dbPayload.audio_url.startsWith('data:')) {
+        dbPayload.audio_url = DEFAULT_EVENT_SETTINGS.audio_url
+      }
+
       const { error: upsertError } = await supabase
         .from('event_settings')
-        .upsert(updated, { onConflict: 'id' })
+        .upsert(dbPayload, { onConflict: 'id' })
       
       if (upsertError) {
         console.warn('Supabase upsert warning, attempting direct update:', upsertError.message)
         const { error: updateError } = await supabase
           .from('event_settings')
-          .update(updated)
+          .update(dbPayload)
           .eq('id', 'main_event')
 
         if (updateError) {
           console.warn('Supabase update warning, changes retained locally:', updateError.message)
+          return { success: true, error: updateError.message }
         }
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Falha na conexão com Supabase'
       console.warn('Supabase upsert error, changes retained locally:', message)
+      return { success: true, error: message }
     }
   }
 

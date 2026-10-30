@@ -61,4 +61,13 @@ describe('App Component', () => {
       expect(screen.getByText(/13 de dezembro de 2026/i)).toBeInTheDocument()
     })
   })
+
+  it('renders location section with the updated address and venue', async () => {
+    render(<App />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Rua Rubens Caporali Ribeiro, 533 - Buritis - Belo Horizonte/i)).toBeInTheDocument()
+      expect(screen.getByText(/Salão de Festas/i)).toBeInTheDocument()
+    })
+  })
 })
