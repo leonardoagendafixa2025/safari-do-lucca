@@ -6,7 +6,11 @@ import { DEFAULT_EVENT_SETTINGS } from '../config/defaults'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://gzkysascdwhnzepexcgm.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_42M4YqRTxXBX4lBsSrq2ug_k4QLSwbV'
 
+// Check if running in a test runner (Vitest) to avoid mutating live production database
+export const isTestEnv = import.meta.env.MODE === 'test'
+
 export const isSupabaseConfigured = Boolean(
+  !isTestEnv &&
   supabaseUrl && 
   supabaseAnonKey && 
   supabaseUrl !== 'https://your-project.supabase.co' &&
@@ -31,7 +35,7 @@ function getLocalSettings(): EventSettings {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (parsed.venue_name === 'Espaço Safari Encantado' || !parsed.venue_name) {
+      if (parsed.venue_name === 'Espaço Safari Encantado' || parsed.venue_name === 'Espaço Selva Mágica' || !parsed.venue_name) {
         parsed.venue_name = DEFAULT_EVENT_SETTINGS.venue_name
       }
       if (parsed.venue_address?.includes('Palmeiras') || !parsed.venue_address) {
@@ -131,7 +135,7 @@ export async function getEventSettings(): Promise<EventSettings> {
         const cleanEventDate = data.event_date ? data.event_date.replace(/(\+00:00|Z|\.000Z)$/, '') : DEFAULT_EVENT_SETTINGS.event_date
         const cleanAddress = (data.venue_address?.includes('Palmeiras') || !data.venue_address) ? DEFAULT_EVENT_SETTINGS.venue_address : data.venue_address
         const cleanMapsUrl = (data.maps_url?.includes('Palmeiras') || !data.maps_url) ? DEFAULT_EVENT_SETTINGS.maps_url : data.maps_url
-        const cleanVenueName = (data.venue_name === 'Espaço Safari Encantado' || !data.venue_name) ? DEFAULT_EVENT_SETTINGS.venue_name : data.venue_name
+        const cleanVenueName = (data.venue_name === 'Espaço Safari Encantado' || data.venue_name === 'Espaço Selva Mágica' || !data.venue_name) ? DEFAULT_EVENT_SETTINGS.venue_name : data.venue_name
 
         const sanitizedRemote: EventSettings = {
           ...DEFAULT_EVENT_SETTINGS,

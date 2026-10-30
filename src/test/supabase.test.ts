@@ -26,11 +26,11 @@ describe('Services: Supabase & Offline Local Storage', () => {
   })
 
   it('should update and persist event settings locally', async () => {
-    const res = await updateEventSettings({ venue_name: 'Espaço Selva Mágica' })
+    const res = await updateEventSettings({ venue_name: 'Salão de Festas - Espaço Safari' })
     expect(res.success).toBe(true)
 
     const updated = await getEventSettings()
-    expect(updated.venue_name).toBe('Espaço Selva Mágica')
+    expect(updated.venue_name).toBe('Salão de Festas - Espaço Safari')
   })
 
   it('should update and persist event date and time display', async () => {
